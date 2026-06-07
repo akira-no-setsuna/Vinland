@@ -3,6 +3,7 @@
 public readonly struct InputCommand
 {
     // Moving
+    // TODO: Convert movement to Vector2 
     public readonly bool MoveLeft;
     public readonly bool MoveRight;
     public readonly bool MoveUp;

@@ -10,6 +10,9 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <ApplicationIcon>Icon.ico</ApplicationIcon>
     </PropertyGroup>
+    <PropertyGroup>
+        <MonoGameExtendedPipelineReferencePath>$(MSBuildThisFileDirectory)pipeline-references</MonoGameExtendedPipelineReferencePath>
+    </PropertyGroup>
     <ItemGroup>
         <None Remove="Icon.ico"/>
         <None Remove="Icon.bmp"/>
@@ -30,6 +33,8 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0-preview.4.26230.115" />
         <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.8" />
         <PackageReference Include="MonoGame.Extended" Version="6.0.0" />
+        <PackageReference Include="MonoGame.Extended.Content.Pipeline" Version="6.0.0" />
+        <PackageReference Include="MonoGame.Extended.Gtk" Version="1.0.0" />
         <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*"/>
         <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*"/>
         <PackageReference Include="MonoSkelly" Version="1.1.0" />

@@ -11,6 +11,7 @@ using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
 using Serilog;
 using Vinland.Core;
+using Vinland.Core.Entities;
 using Vinland.Core.Infrastructure;
 using Vinland.Core.Input;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
@@ -40,9 +41,8 @@ public class Game1 : Game
     
     // Physic
     private World _physicWorld;
-    
     private Body _playerBody;
-    
+    private PlayerController _playerController;
     private const int PixelsPerMeter = 64;
 
     // Draw
@@ -94,6 +94,8 @@ public class Game1 : Game
         _tilemapRenderer.LoadTilemap(_tilemap);
 
         InitializePhysicFromMap();
+
+        _playerController = new PlayerController(_playerBody);
     }
 
     private void InitializePhysicFromMap()
@@ -168,36 +170,10 @@ public class Game1 : Game
         }
         
         // Player Movement
-        PlayerMovement();
+        _playerController.FixedUpdate(_input);
         _channelHub.PhysicsToMain.Writer.TryWrite(new PhysicsUpdate("Player", _playerBody.Position));
-
-        
-        Log.Information("Physic: {PhysicPos}, Mono:  {MonoPos}",
-            _playerBody.Position,
-            _playerRenderPos);
-        
     }
-
-    private void PlayerMovement()
-    {
-        
-        Vector2Aether velocity = Vector2Aether.Zero;
-        
-        float speedMetersPerSecond = 50f;
-
-        if (_input.MoveUp) velocity.Y -= 1;
-        if (_input.MoveDown) velocity.Y += 1;
-        if (_input.MoveLeft) velocity.X -= 1;
-        if (_input.MoveRight) velocity.X += 1;
-
-        if (velocity.LengthSquared() > 0)
-            velocity.Normalize();
-        velocity *= speedMetersPerSecond;
-        
-        Console.WriteLine($"Speed: {velocity}");
-        
-        _playerBody.LinearVelocity = velocity;
-    }
+    
     
     protected override void Update(GameTime gameTime)
     {
@@ -206,7 +182,6 @@ public class Game1 : Game
         // Input
         KeyboardExtended.Update();
         var input = _inputSource.ReadInput();
-        
         _channelHub.MainToLogic.Writer.TryWrite(input);
         
         _accumulator += (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -214,7 +189,6 @@ public class Game1 : Game
         while (_accumulator >= FixedDeltaTime)
         {
             FixedUpdate();
-            
             _frameId++;
             _accumulator -= FixedDeltaTime;
         }

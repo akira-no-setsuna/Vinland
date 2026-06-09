@@ -34,10 +34,9 @@ public class Game1 : Game
     private float _accumulator;
 
     // Input
-    private IInputSource _inputSource = new KbmInputSource();
-    private InputCommandBuffer _inputBuffer = new InputCommandBuffer();
+    private readonly IInputSource _inputSource = new KbmInputSource();
     
-    private InputCommand _currentInput;
+    private InputCommand _input;
     
     // Physic
     private World _physicWorld;
@@ -160,7 +159,13 @@ public class Game1 : Game
     private void FixedUpdate()
     {
         _physicWorld.Step(FixedDeltaTime);
-        _currentInput = _inputBuffer.Current;
+        
+        // TODO: Problem: Loss of quick keystrokes
+        // Input Read
+        while (_channelHub.MainToLogic.Reader.TryRead(out var input))
+        {
+            _input = input;
+        }
         
         // Player Movement
         PlayerMovement();
@@ -180,10 +185,10 @@ public class Game1 : Game
         
         float speedMetersPerSecond = 50f;
 
-        if (_currentInput.MoveUp) velocity.Y -= 1;
-        if (_currentInput.MoveDown) velocity.Y += 1;
-        if (_currentInput.MoveLeft) velocity.X -= 1;
-        if (_currentInput.MoveRight) velocity.X += 1;
+        if (_input.MoveUp) velocity.Y -= 1;
+        if (_input.MoveDown) velocity.Y += 1;
+        if (_input.MoveLeft) velocity.X -= 1;
+        if (_input.MoveRight) velocity.X += 1;
 
         if (velocity.LengthSquared() > 0)
             velocity.Normalize();
@@ -200,17 +205,14 @@ public class Game1 : Game
         
         // Input
         KeyboardExtended.Update();
-        var rawInput = _inputSource.ReadInput();
+        var input = _inputSource.ReadInput();
         
-        _channelHub.MainToLogic.Writer.TryWrite(rawInput);
-        
-        _inputBuffer.RecordForCurrentFrame(rawInput);
+        _channelHub.MainToLogic.Writer.TryWrite(input);
         
         _accumulator += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         while (_accumulator >= FixedDeltaTime)
         {
-            _inputBuffer.AdvanceFrame();
             FixedUpdate();
             
             _frameId++;
@@ -243,5 +245,11 @@ public class Game1 : Game
         _tilemapRenderer.Draw(_camera);
         _spriteBatch.Draw(_playerTexture, _playerRenderPos.ToMono(), Color.White);
         _spriteBatch.End();
+    }
+
+    protected override void UnloadContent()
+    {
+        Log.CloseAndFlush();
+        base.UnloadContent();
     }
 }

@@ -11,6 +11,7 @@ public static class DependencyInjection
     {
         var services = new ServiceCollection();
         
+        // Logging (Serilog)
         var serilogLogger = new LoggerConfiguration()
             .WriteTo.Async(a => a.File("logs/game-.txt", rollingInterval: RollingInterval.Day))
             .Enrich.WithThreadId()

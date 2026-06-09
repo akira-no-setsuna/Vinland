@@ -7,6 +7,10 @@ namespace Vinland.Core.Infrastructure;
 public class ChannelHub
 {
     public readonly Channel<PhysicsUpdate> PhysicsToMain = Channel.CreateUnbounded<PhysicsUpdate>();
+    
+    /// <summary>
+    /// You can only write/read <see cref="InputCommand"/>
+    /// </summary>
     public readonly Channel<InputCommand> MainToLogic = Channel.CreateUnbounded<InputCommand>();
 }
 

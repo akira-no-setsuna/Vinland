@@ -13,12 +13,12 @@ public class KbmInputSource : IInputSource
 
         return new InputCommand
         (
-            moveUp: keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up),
-            moveDown: keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down),
-            moveLeft: keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left),
-            moveRight: keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right),
+            MoveUp: keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up),
+            MoveDown: keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down),
+            MoveLeft: keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left),
+            MoveRight: keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right),
             
-            attack: mouseState.LeftButton == ButtonState.Pressed
+            Attack: mouseState.LeftButton == ButtonState.Pressed
         );
     }
 }

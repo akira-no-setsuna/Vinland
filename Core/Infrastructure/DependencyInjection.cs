@@ -20,6 +20,7 @@ public static class DependencyInjection
         Log.Logger = serilogLogger;
         
         services.AddSingleton<Serilog.ILogger>(serilogLogger);
+        services.AddSingleton<ChannelHub>();
         services.AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
         
         return services.BuildServiceProvider();

@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
@@ -12,7 +13,7 @@ using Serilog;
 using Vinland.Core;
 using Vinland.Core.Infrastructure;
 using Vinland.Core.Input;
-using Vector2Aither = nkast.Aether.Physics2D.Common.Vector2;
+using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 using Vector2Mono = Microsoft.Xna.Framework.Vector2;
 
 
@@ -24,7 +25,8 @@ public class Game1 : Game
     private SpriteBatch _spriteBatch;
     
     // DI
-    IServiceProvider _services;
+    private IServiceProvider _services;
+    private ChannelHub _channelHub;
     
     // Fixed Update
     private uint _frameId;
@@ -45,7 +47,7 @@ public class Game1 : Game
     private const int PixelsPerMeter = 64;
 
     // Draw
-    Vector2Aither _playerRenderPos;
+    Vector2Aether _playerRenderPos;
     
     // Tile map
     Tilemap _tilemap;
@@ -65,9 +67,11 @@ public class Game1 : Game
     {
         // DI
         _services = DependencyInjection.ConfigureServices();
+
+        _channelHub = _services.GetRequiredService<ChannelHub>();
         
         // Physic
-        _physicWorld = new World(Vector2Aither.Zero);
+        _physicWorld = new World(Vector2Aether.Zero);
         
         // Tile map
         _camera = new OrthographicCamera(GraphicsDevice)
@@ -160,7 +164,7 @@ public class Game1 : Game
         
         // Player Movement
         PlayerMovement();
-        ChannelHub.PhysicsToMain.Writer.TryWrite(new PhysicsUpdate("Player", _playerBody.Position));
+        _channelHub.PhysicsToMain.Writer.TryWrite(new PhysicsUpdate("Player", _playerBody.Position));
 
         
         Log.Information("Physic: {PhysicPos}, Mono:  {MonoPos}",
@@ -172,7 +176,7 @@ public class Game1 : Game
     private void PlayerMovement()
     {
         
-        Vector2Aither velocity = Vector2Aither.Zero;
+        Vector2Aether velocity = Vector2Aether.Zero;
         
         float speedMetersPerSecond = 50f;
 
@@ -198,7 +202,7 @@ public class Game1 : Game
         KeyboardExtended.Update();
         var rawInput = _inputSource.ReadInput();
         
-        ChannelHub.MainToLogic.Writer.TryWrite(rawInput);
+        _channelHub.MainToLogic.Writer.TryWrite(rawInput);
         
         _inputBuffer.RecordForCurrentFrame(rawInput);
         
@@ -214,7 +218,7 @@ public class Game1 : Game
         }
         
         // Player position for Draw
-        while (ChannelHub.PhysicsToMain.Reader.TryRead(out var update))
+        while (_channelHub.PhysicsToMain.Reader.TryRead(out var update))
         {
             if (update.EntityId == "Player")
                 _playerRenderPos = update.Position;

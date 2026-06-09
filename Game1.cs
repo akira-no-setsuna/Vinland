@@ -1,6 +1,4 @@
 ﻿using System;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.ObjectPool;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
@@ -12,6 +10,7 @@ using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
 using Serilog;
 using Vinland.Core;
+using Vinland.Core.Infrastructure;
 using Vinland.Core.Input;
 using Vector2Aither = nkast.Aether.Physics2D.Common.Vector2;
 using Vector2Mono = Microsoft.Xna.Framework.Vector2;
@@ -64,13 +63,8 @@ public class Game1 : Game
     
     protected override void Initialize()
     {
-        // TODO: Logger not work!
         // DI
-        var serilogLogger = new LoggerConfiguration()
-            .WriteTo.Async(a => a.File("logs/game-.txt", rollingInterval: RollingInterval.Day))
-            .Enrich.WithThreadId()
-            .MinimumLevel.Debug() // Явно укажите уровень
-            .CreateLogger();
+        _services = DependencyInjection.ConfigureServices();
         
         // Physic
         _physicWorld = new World(Vector2Aither.Zero);
@@ -168,7 +162,10 @@ public class Game1 : Game
         PlayerMovement();
         ChannelHub.PhysicsToMain.Writer.TryWrite(new PhysicsUpdate("Player", _playerBody.Position));
 
-        Console.WriteLine($"Physic: {_playerBody.Position}, Mono:  {_playerRenderPos}, Draw: {(int)_playerRenderPos.X} {(int)_playerRenderPos.Y}");
+        
+        Log.Information("Physic: {PhysicPos}, Mono:  {MonoPos}",
+            _playerBody.Position,
+            _playerRenderPos);
         
     }
 

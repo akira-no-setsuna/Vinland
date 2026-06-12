@@ -6,7 +6,6 @@ namespace Vinland.Core.Entities;
 
 public class PlayerController(Body body)
 {
-    private readonly Body _body = body;
     private const float SpeedMetersPerSecond = 50f;
 
     public void FixedUpdate(InputCommand input)
@@ -23,6 +22,6 @@ public class PlayerController(Body body)
             velocity.Normalize();
             velocity *= SpeedMetersPerSecond;
         }
-        _body.LinearVelocity = velocity;
+        body.LinearVelocity = velocity;
     }
 }

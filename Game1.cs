@@ -14,6 +14,7 @@ using Vinland.Core;
 using Vinland.Core.Entities;
 using Vinland.Core.Infrastructure;
 using Vinland.Core.Input;
+using Vinland.Core.Physic;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 using Vector2Mono = Microsoft.Xna.Framework.Vector2;
 
@@ -43,8 +44,7 @@ public class Game1 : Game
     private World _physicWorld;
     private Body _playerBody;
     private PlayerController _playerController;
-    private const int PixelsPerMeter = 64;
-
+    private MapColliderGenerator  _mapColliderGenerator;
     // Draw
     Vector2Aether _playerRenderPos;
     
@@ -55,6 +55,8 @@ public class Game1 : Game
     OrthographicCamera _camera;
 
     private Texture2D _playerTexture;
+    private PhysicsDebugRenderer _physicsDebug;
+
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -66,8 +68,9 @@ public class Game1 : Game
     {
         // DI
         _services = DependencyInjection.ConfigureServices();
-
         _channelHub = _services.GetRequiredService<ChannelHub>();
+        
+        Log.Information("=== Initializing game ===");
         
         // Physic
         _physicWorld = new World(Vector2Aether.Zero);
@@ -84,6 +87,7 @@ public class Game1 : Game
     
     protected override void LoadContent()
     {
+        Log.Information("=== Loading content ===");
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _playerTexture = Content.Load<Texture2D>("textures/Player");
         
@@ -94,15 +98,16 @@ public class Game1 : Game
         _tilemapRenderer.LoadTilemap(_tilemap);
 
         InitializePhysicFromMap();
-
+        _mapColliderGenerator = new MapColliderGenerator();
+        _mapColliderGenerator.InitializeFromMap(_physicWorld,  _tilemap);
         _playerController = new PlayerController(_playerBody);
+        
+        _physicsDebug = new PhysicsDebugRenderer(GraphicsDevice);
     }
 
     private void InitializePhysicFromMap()
     {
         // Player Physic
-        if (_playerBody != null) _physicWorld.Remove(_playerBody);
-        
         _playerBody = _physicWorld.CreateBody();
         _playerBody.BodyType = BodyType.Dynamic;
 
@@ -112,50 +117,6 @@ public class Game1 : Game
                 1f),
             1f);
         _playerBody.CreateFixture(playerShape);
-        
-        const string collisionLayerName = "Collision";
-        
-        
-        // TODO: Initialize Tilemaps collision not work!
-        // Logger for Collision map Layer
-        if (!_tilemap.Layers.TryGetValue(collisionLayerName, out var layer))
-        {
-            // var logger = _services.GetRequiredService<ILogger>();
-            // logger.Error($"Collision layer '{collisionLayerName}' not found in map.");
-        }
-        
-        // Initialize Collision map Layer
-        var tileLayer = layer as TilemapTileLayer;
-        if (tileLayer == null) return;
-        
-        float tileSize = _tilemap.TileWidth;
-
-        for (int x = 0; x < _tilemap.Width; x++)
-        {
-            for (int y = 0; y < _tilemap.Height; y++)
-            {
-                var tile = tileLayer.GetTile(x, y);
-                if (tile.HasValue)
-                {
-                    float pixelX = x * tileSize + tileSize / 2f;
-                    float pixelY = y * tileSize + tileSize / 2f;
-                
-                    // Converting coordinates for physic
-                    float worldX = pixelX / PixelsPerMeter;
-                    float worldY = -pixelY / PixelsPerMeter; 
-                    
-                    var body = _physicWorld.CreateBody();
-                    body.BodyType = BodyType.Static;
-
-                    var shape = new PolygonShape(
-                        PolygonTools.CreateRectangle(
-                            tileSize / 2f,
-                            tileSize / 2f),
-                        1f);
-                    body.CreateFixture(shape);
-                }
-            }
-        }
     }
 
     private void FixedUpdate()
@@ -199,12 +160,6 @@ public class Game1 : Game
             if (update.EntityId == "Player")
                 _playerRenderPos = update.Position;
         }
-        
-        // Camera
-        
-        // _camera.Position = Microsoft.Xna.Framework.Vector2.SmoothStep(_camera.Position, _playerRenderPos.ToMono(), 0.1f);
-        // _camera.Position = _playerRenderPos.ToMono();
-        
         _camera.LookAt(_playerRenderPos.ToMono());
         base.Update(gameTime);
     }
@@ -219,10 +174,13 @@ public class Game1 : Game
         _tilemapRenderer.Draw(_camera);
         _spriteBatch.Draw(_playerTexture, _playerRenderPos.ToMono(), Color.White);
         _spriteBatch.End();
+        
+        _physicsDebug.Draw(_physicWorld, _camera.GetViewMatrix());
     }
 
     protected override void UnloadContent()
     {
+        Log.Information("=== Unloading content ===");
         Log.CloseAndFlush();
         base.UnloadContent();
     }

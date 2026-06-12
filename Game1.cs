@@ -14,6 +14,7 @@ using Vinland.Core;
 using Vinland.Core.Entities;
 using Vinland.Core.Infrastructure;
 using Vinland.Core.Input;
+using Vinland.Core.Physic;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 using Vector2Mono = Microsoft.Xna.Framework.Vector2;
 
@@ -22,6 +23,7 @@ namespace Vinland;
 
 public class Game1 : Game
 {
+    private PhysicsDebugRenderer _debugRenderer;
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     
@@ -43,7 +45,7 @@ public class Game1 : Game
     private World _physicWorld;
     private Body _playerBody;
     private PlayerController _playerController;
-    private const int PixelsPerMeter = 64;
+    
 
     // Draw
     Vector2Aether _playerRenderPos;
@@ -79,11 +81,13 @@ public class Game1 : Game
             Position = Vector2Mono.Zero
         };
         
+        Log.Information("=========== New Initialization ===========");
         base.Initialize(); 
     }
     
     protected override void LoadContent()
     {
+        _debugRenderer = new PhysicsDebugRenderer(GraphicsDevice);
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _playerTexture = Content.Load<Texture2D>("textures/Player");
         
@@ -113,49 +117,9 @@ public class Game1 : Game
             1f);
         _playerBody.CreateFixture(playerShape);
         
-        const string collisionLayerName = "Collision";
+        var builder = new TiledPhysicsBuilder();
+        builder.InitializeFromMap(_physicWorld, _tilemap);
         
-        
-        // TODO: Initialize Tilemaps collision not work!
-        // Logger for Collision map Layer
-        if (!_tilemap.Layers.TryGetValue(collisionLayerName, out var layer))
-        {
-            // var logger = _services.GetRequiredService<ILogger>();
-            // logger.Error($"Collision layer '{collisionLayerName}' not found in map.");
-        }
-        
-        // Initialize Collision map Layer
-        var tileLayer = layer as TilemapTileLayer;
-        if (tileLayer == null) return;
-        
-        float tileSize = _tilemap.TileWidth;
-
-        for (int x = 0; x < _tilemap.Width; x++)
-        {
-            for (int y = 0; y < _tilemap.Height; y++)
-            {
-                var tile = tileLayer.GetTile(x, y);
-                if (tile.HasValue)
-                {
-                    float pixelX = x * tileSize + tileSize / 2f;
-                    float pixelY = y * tileSize + tileSize / 2f;
-                
-                    // Converting coordinates for physic
-                    float worldX = pixelX / PixelsPerMeter;
-                    float worldY = -pixelY / PixelsPerMeter; 
-                    
-                    var body = _physicWorld.CreateBody();
-                    body.BodyType = BodyType.Static;
-
-                    var shape = new PolygonShape(
-                        PolygonTools.CreateRectangle(
-                            tileSize / 2f,
-                            tileSize / 2f),
-                        1f);
-                    body.CreateFixture(shape);
-                }
-            }
-        }
     }
 
     private void FixedUpdate()
@@ -219,6 +183,8 @@ public class Game1 : Game
         _tilemapRenderer.Draw(_camera);
         _spriteBatch.Draw(_playerTexture, _playerRenderPos.ToMono(), Color.White);
         _spriteBatch.End();
+        
+        _debugRenderer.Draw(_physicWorld, _camera.GetViewMatrix());
     }
 
     protected override void UnloadContent()

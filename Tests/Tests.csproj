@@ -30,4 +30,10 @@
         <Using Include="Xunit"/>
         <Using Include="FluentAssertions" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Core\Entities\" />
+      <Folder Include="Core\Logic\" />
+      <Folder Include="Core\Physics\" />
+    </ItemGroup>
 </Project>

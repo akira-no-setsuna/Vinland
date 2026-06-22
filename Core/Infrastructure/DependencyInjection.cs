@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddSingleton<Serilog.ILogger>(serilogLogger);
         services.AddSingleton<ChannelHub>();
         services.AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
+        services.AddSingleton<GameThreadManager>();
         
         return services.BuildServiceProvider();
     }

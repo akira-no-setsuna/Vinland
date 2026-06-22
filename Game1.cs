@@ -56,6 +56,7 @@ public class Game1 : Game
 
     private Texture2D _playerTexture;
     private PhysicsDebugRenderer _physicsDebug;
+    private GameThreadManager _threadManager;
 
     public Game1()
     {
@@ -69,6 +70,7 @@ public class Game1 : Game
         // DI
         _services = DependencyInjection.ConfigureServices();
         _channelHub = _services.GetRequiredService<ChannelHub>();
+        _threadManager = _services.GetRequiredService<GameThreadManager>();
         
         Log.Information("=== Initializing game ===");
         
@@ -81,6 +83,9 @@ public class Game1 : Game
             Zoom = 2f,
             Position = Vector2Mono.Zero
         };
+        
+        // Thread
+        _threadManager.Start();
         
         base.Initialize(); 
     }
@@ -181,6 +186,9 @@ public class Game1 : Game
     protected override void UnloadContent()
     {
         Log.Information("=== Unloading content ===");
+        
+        _threadManager.Dispose();
+        
         Log.CloseAndFlush();
         base.UnloadContent();
     }

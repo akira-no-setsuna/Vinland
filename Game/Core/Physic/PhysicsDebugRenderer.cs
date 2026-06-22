@@ -9,7 +9,7 @@ namespace Vinland.Core.Physic;
 /// <summary>
 /// Гладкая отрисовка физических тел (полигонов) для отладки.
 /// </summary>
-public class PhysicsDebugRenderer
+public class PhysicsDebugRenderer // WIP: AI code
 {
     private readonly SpriteBatch _spriteBatch;
     private readonly Texture2D _pixel;

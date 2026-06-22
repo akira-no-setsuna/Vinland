@@ -40,7 +40,7 @@ public class GameThreadManager : IDisposable
         Log.Debug("Threads started.");
     }
 
-    private async Task LogicLoop()
+    private async Task LogicLoop() // For now, it's just a placeholder
     {
         try
         {
@@ -64,7 +64,7 @@ public class GameThreadManager : IDisposable
         }
     }
 
-    private async Task PhysicsLoop()
+    private async Task PhysicsLoop() // For now, it's just a placeholder
     {
         try
         {
@@ -88,7 +88,7 @@ public class GameThreadManager : IDisposable
         }
     }
     
-    private async Task DataLoop()
+    private async Task DataLoop() // For now, it's just a placeholder
     {
         try
         {

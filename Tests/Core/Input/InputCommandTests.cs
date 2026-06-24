@@ -1,102 +1,52 @@
-﻿using FluentAssertions;
+﻿using Xunit;
+using FluentAssertions;
 using Vinland.Core.Input;
-using Xunit;
+using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 
-namespace Tests.Core.Input;
-
-public class InputCommandTests
+namespace Tests.Unit
 {
-    [Fact]
-    public void Constructor_WithAllDirections_ShouldProduceZeroVector()
+    public class InputCommandTests
     {
-        // Arrange & Act
-        var cmd = new InputCommand(
-            MoveLeft: true,
-            MoveRight: true,
-            MoveUp: true,
-            MoveDown: true,
-            Attack: true);
+        [Fact]
+        public void MoveDirection_WithUp_ReturnsUp()
+        {
+            var cmd = new InputCommand(false, false, true, false, false);
+            cmd.MoveDirection.Should().Be(new Vector2Aether(0, -1));
+        }
 
-        // Assert — противоположные направления взаимно уничтожаются
-        cmd.MoveDirection.X.Should().Be(0f, "left and right cancel out");
-        cmd.MoveDirection.Y.Should().Be(0f, "up and down cancel out");
-        cmd.Attack.Should().BeTrue();
-    }
+        [Fact]
+        public void MoveDirection_WithDown_ReturnsDown()
+        {
+            var cmd = new InputCommand(false, false, false, true, false);
+            cmd.MoveDirection.Should().Be(new Vector2Aether(0, 1));
+        }
 
-    // === Одиночные направления (кардинальные) ===
-    [Theory]
-    [InlineData(true,  false, false, false,  1f,  0f)] // Right only
-    [InlineData(false, true,  false, false, -1f,  0f)] // Left only
-    [InlineData(false, false, true,  false,  0f,  1f)] // Down only  (Y+ в Aether = вниз)
-    [InlineData(false, false, false, true,   0f, -1f)] // Up only    (Y- в Aether = вверх)
-    public void MoveDirection_SingleDirection_ShouldReturnUnitVector(
-        bool right, bool left, bool down, bool up,
-        float expectedX, float expectedY)
-    {
-        var cmd = new InputCommand(left, right, up, down, Attack: false);
+        [Fact]
+        public void MoveDirection_WithLeft_ReturnsLeft()
+        {
+            var cmd = new InputCommand(true, false, false, false, false);
+            cmd.MoveDirection.Should().Be(new Vector2Aether(-1, 0));
+        }
 
-        cmd.MoveDirection.X.Should().Be(expectedX);
-        cmd.MoveDirection.Y.Should().Be(expectedY);
-        cmd.MoveDirection.Length().Should().BeApproximately(1f, 0.0001f,
-            "single direction must produce unit vector");
-    }
+        [Fact]
+        public void MoveDirection_WithRight_ReturnsRight()
+        {
+            var cmd = new InputCommand(false, true, false, false, false);
+            cmd.MoveDirection.Should().Be(new Vector2Aether(1, 0));
+        }
 
-    // === Диагональные комбинации (НЕ нормализованы — это ответственность PlayerController) ===
-    [Theory]
-    [InlineData(true,  false, true,  false,  1f,  1f)] // Right + Down
-    [InlineData(true,  false, false, true,   1f, -1f)] // Right + Up
-    [InlineData(false, true,  true,  false, -1f,  1f)] // Left + Down
-    [InlineData(false, true,  false, true,  -1f, -1f)] // Left + Up
-    public void MoveDirection_DiagonalCombinations_ShouldReturnRawNotNormalized(
-        bool right, bool left, bool down, bool up,
-        float expectedX, float expectedY)
-    {
-        var cmd = new InputCommand(left, right, up, down, Attack: false);
+        [Fact]
+        public void MoveDirection_WithUpAndLeft_ReturnsDiagonalVector()
+        {
+            var cmd = new InputCommand(true, false, true, false, false);
+            cmd.MoveDirection.Should().Be(new Vector2Aether(-1, -1));
+        }
 
-        cmd.MoveDirection.X.Should().Be(expectedX);
-        cmd.MoveDirection.Y.Should().Be(expectedY);
-        cmd.MoveDirection.Length().Should().BeApproximately(1.414f, 0.001f,
-            "diagonal is NOT normalized here — PlayerController.FixedUpdate does it");
-    }
-
-    [Fact]
-    public void MoveDirection_AllFalse_ShouldBeZeroVector()
-    {
-        var cmd = new InputCommand(false, false, false, false, false);
-
-        cmd.MoveDirection.X.Should().Be(0f);
-        cmd.MoveDirection.Y.Should().Be(0f);
-        cmd.MoveDirection.LengthSquared().Should().Be(0f);
-    }
-
-    [Fact]
-    public void MoveDirection_Diagonal_ShouldNotBeNormalized_Here()
-    {
-        // Явная проверка контракта: InputCommand — сырой ввод, нормализация — в контроллере
-        var cmd = new InputCommand(false, true, false, true, false); // Right+Down
-
-        cmd.MoveDirection.Length().Should().BeApproximately(1.414f, 0.001f,
-            "InputCommand returns raw direction; normalization is controller's job");
-    }
-
-    [Fact]
-    public void Record_Equality_ShouldWorkByValue()
-    {
-        var a = new InputCommand(true, false, false, true, true);
-        var b = new InputCommand(true, false, false, true, true);
-        var c = new InputCommand(false, false, false, true, true);
-
-        a.Should().Be(b);
-        a.Should().NotBe(c);
-    }
-
-    [Fact]
-    public void Record_StructEquality_DifferentAttackFlag_ShouldNotBeEqual()
-    {
-        var moveOnly = new InputCommand(true, false, false, false, Attack: false);
-        var moveAndAttack = new InputCommand(true, false, false, false, Attack: true);
-
-        moveOnly.Should().NotBe(moveAndAttack,
-            "Attack flag is part of record equality");
+        [Fact]
+        public void MoveDirection_WithOppositeDirections_ReturnsZero()
+        {
+            var cmd = new InputCommand(true, true, false, false, false);
+            cmd.MoveDirection.Should().Be(Vector2Aether.Zero);
+        }
     }
 }

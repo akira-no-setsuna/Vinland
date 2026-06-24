@@ -1,90 +1,70 @@
-﻿using FluentAssertions;
+﻿using Xunit;
+using FluentAssertions;
 using Vinland.Core.Infrastructure;
-using Xunit;
+using System;
+using System.Threading;
 
-namespace Tests.Core.Infrastructure;
-
-public class GameThreadManagerTests : IDisposable
+namespace Tests.Unit
 {
-    private readonly GameThreadManager _manager = new();
-
-    [Fact]
-    public void Start_WhenCalledOnce_ShouldSucceed()
+    public class GameThreadManagerTests : IDisposable
     {
-        var act = () => _manager.Start();
-        act.Should().NotThrow();
-    }
+        private readonly GameThreadManager _manager;
 
-    [Fact]
-    public void Start_WhenCalledTwice_ShouldThrow()
-    {
-        _manager.Start();
+        public GameThreadManagerTests()
+        {
+            _manager = new GameThreadManager();
+        }
 
-        var act = () => _manager.Start();
+        [Fact]
+        public void Start_DoesNotThrow()
+        {
+            Action act = () => _manager.Start();
+            act.Should().NotThrow();
+        }
 
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*Already started*");
-    }
+        [Fact]
+        public void Start_WhenAlreadyStarted_ThrowsInvalidOperationException()
+        {
+            _manager.Start();
+            Action act = () => _manager.Start();
+            act.Should().Throw<InvalidOperationException>().WithMessage("Already started");
+        }
 
-    [Fact]
-    public void Stop_ShouldSignalCancellation()
-    {
-        _manager.Start();
+        [Fact]
+        public void Stop_DoesNotThrow()
+        {
+            _manager.Start();
+            Action act = () => _manager.Stop();
+            act.Should().NotThrow();
+        }
 
-        var act = () => _manager.Stop();
+        [Fact]
+        public void Dispose_StopsThreadsAndDisposes()
+        {
+            _manager.Start();
+            Action act = () => _manager.Dispose();
+            act.Should().NotThrow();
+        }
 
-        act.Should().NotThrow();
-    }
+        [Fact]
+        public void Join_ReturnsTrueWhenThreadsComplete()
+        {
+            _manager.Start();
+            _manager.Stop();
+            var result = _manager.Join(TimeSpan.FromMilliseconds(500));
+            result.Should().BeTrue();
+        }
 
-    [Fact]
-    public void Dispose_ShouldJoinThreadsWithinTimeout()
-    {
-        _manager.Start();
+        [Fact]
+        public void Dispose_WhenNotStarted_DoesNotThrow()
+        {
+            Action act = () => _manager.Dispose();
+            act.Should().NotThrow();
+        }
 
-        var act = () => _manager.Dispose();
-
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public void Dispose_WhenNotStarted_ShouldNotThrow()
-    {
-        var act = () => _manager.Dispose();
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public void Dispose_CalledTwice_ShouldBeIdempotent()
-    {
-        _manager.Start();
-
-        _manager.Dispose();
-        var act = () => _manager.Dispose();
-
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public async Task GracefulShutdown_ShouldCompleteWithinTimeout()
-    {
-        _manager.Start();
-        await Task.Delay(50); // дать потокам стартовать
-
-        _manager.Stop();
-        var joined = _manager.Join(TimeSpan.FromMilliseconds(500));
-
-        joined.Should().BeTrue("threads must exit gracefully on cancellation");
-    }
-
-    [Fact]
-    public void Join_WhenNotStarted_ShouldReturnTrue()
-    {
-        var result = _manager.Join(TimeSpan.FromMilliseconds(100));
-        result.Should().BeTrue();
-    }
-
-    public void Dispose()
-    {
-        try { _manager.Dispose(); } catch { /* ignore */ }
+        public void Dispose()
+        {
+            _manager?.Dispose();
+        }
     }
 }

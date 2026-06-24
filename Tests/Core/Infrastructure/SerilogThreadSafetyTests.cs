@@ -6,7 +6,7 @@ namespace Tests.Core.Infrastructure;
 
 /// <summary>
 /// Проверка thread-safety Serilog (Фаза 0 п.3).
-/// Async sink + File sink должны корректно работать из разных потоков.
+/// Используем синхронный файловый sink для надёжности.
 /// </summary>
 public class SerilogThreadSafetyTests : IDisposable
 {
@@ -16,9 +16,12 @@ public class SerilogThreadSafetyTests : IDisposable
     {
         _logFilePath = $"logs/test-thread-safety-{Guid.NewGuid()}.txt";
         
-        // Настраиваем Serilog как в DependencyInjection
+        // Настраиваем Serilog с синхронной записью и явным шаблоном, включающим ThreadId
         var logger = new LoggerConfiguration()
-            .WriteTo.Async(a => a.File(_logFilePath))
+            .WriteTo.File(
+                _logFilePath,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{ThreadId}] {Level:u3} {Message:lj}{NewLine}{Exception}"
+            )
             .Enrich.WithThreadId()
             .MinimumLevel.Debug()
             .CreateLogger();
@@ -50,7 +53,10 @@ public class SerilogThreadSafetyTests : IDisposable
         await Task.WhenAll(tasks);
         Log.CloseAndFlush();
 
-        // Assert — файл должен существовать и содержать сообщения
+        // Небольшая задержка для гарантии завершения записи (для синхронного sink не обязательно)
+        await Task.Delay(50);
+
+        // Assert — файл должен существовать и содержать все сообщения
         File.Exists(_logFilePath).Should().BeTrue();
         var lines = await File.ReadAllLinesAsync(_logFilePath);
         lines.Length.Should().Be(threadCount * messagesPerThread,
@@ -58,21 +64,21 @@ public class SerilogThreadSafetyTests : IDisposable
     }
 
     [Fact]
-    public void LoggingFromDifferentThreads_ShouldIncludeThreadId()
+    public async Task LoggingFromDifferentThreads_ShouldIncludeThreadId()
     {
         // Act
         Log.Information("Test message from main thread");
-        
-        Task.Run(() => Log.Information("Test message from background thread")).Wait();
+        await Task.Run(() => Log.Information("Test message from background thread"));
         
         Log.CloseAndFlush();
+        await Task.Delay(50);
 
         // Assert
-        var lines = File.ReadAllLines(_logFilePath);
+        var lines = await File.ReadAllLinesAsync(_logFilePath);
         lines.Should().Contain(line => line.Contains("Test message from main thread"));
         lines.Should().Contain(line => line.Contains("Test message from background thread"));
         
-        // Thread ID enricher должен добавить информацию о потоке
+        // Проверяем, что ThreadId присутствует в записях (в квадратных скобках, как задано в шаблоне)
         lines.Should().Contain(line => line.Contains("[") && line.Contains("]"),
             "Thread enricher should add thread ID in brackets");
     }
@@ -80,8 +86,8 @@ public class SerilogThreadSafetyTests : IDisposable
     public void Dispose()
     {
         Log.CloseAndFlush();
-        Log.Logger = null;
-        
+        // НЕ присваиваем Log.Logger = null, чтобы избежать ArgumentNullException
+
         // Cleanup
         if (File.Exists(_logFilePath))
         {

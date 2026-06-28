@@ -1,6 +1,6 @@
 ﻿using Xunit;
 using FluentAssertions;
-using Vinland.Core.Entities;
+using Game.Core.Entities;
 using Vinland.Core.Input;
 using nkast.Aether.Physics2D.Dynamics;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;

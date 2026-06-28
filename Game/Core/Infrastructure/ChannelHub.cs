@@ -1,12 +1,15 @@
 ﻿using System.Threading.Channels;
-using nkast.Aether.Physics2D.Common;
 using Vinland.Core.Input;
 using Vinland.Core.Logic;
+using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
+using Vector2Mono = Microsoft.Xna.Framework.Vector2;
 
-namespace Vinland.Core.Infrastructure;
+namespace Game.Core.Infrastructure;
 
 public class ChannelHub
 {
+    
+    
     /// <summary>
     /// You can only write/read <see cref="PhysicsUpdate"/>
     /// </summary>
@@ -37,4 +40,19 @@ public class ChannelHub
     
 }
 
-public record PhysicsUpdate(string EntityId, Vector2 Position);
+public record PhysicsUpdate
+{
+    public string EntityId { get; }
+    public Vector2Mono Position { get; }
+    
+    /// <summary>
+    /// Creates an update, automatically converting the position from meters to pixels.
+    /// </summary>
+    /// <param name="entityId">Entity Identifier</param>
+    /// <param name="physicsPosition">Positon in meters (from Aether Physics)</param>
+    public PhysicsUpdate(string entityId, Vector2Aether physicsPosition)
+    {
+        EntityId = entityId;
+        Position = physicsPosition.ToMono();
+    }
+}

@@ -1,12 +1,12 @@
 ﻿using nkast.Aether.Physics2D.Dynamics;
-using Vector2Aether =  nkast.Aether.Physics2D.Common.Vector2;
 using Vinland.Core.Input;
+using Vector2Aether =  nkast.Aether.Physics2D.Common.Vector2;
 
-namespace Vinland.Core.Entities;
+namespace Game.Core.Entities;
 
 public class PlayerController(Body body)
 {
-    private const float SpeedMetersPerSecond = 50f;
+    private const float SPEED_METERS_PER_SECOND = 5f;
 
     public void FixedUpdate(InputCommand input)
     {
@@ -20,7 +20,7 @@ public class PlayerController(Body body)
         if (velocity.LengthSquared() > 0)
         {
             velocity.Normalize();
-            velocity *= SpeedMetersPerSecond;
+            velocity *= SPEED_METERS_PER_SECOND;
         }
         body.LinearVelocity = velocity;
     }

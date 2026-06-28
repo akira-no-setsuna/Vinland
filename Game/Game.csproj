@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <RollForward>Major</RollForward>
+        <PublishReadyToRun>false</PublishReadyToRun>
+        <TieredCompilation>false</TieredCompilation>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <ApplicationIcon>Icon.ico</ApplicationIcon>
+        <MonoGameExtendedPipelineReferencePath>$(MSBuildThisFileDirectory)pipeline-references</MonoGameExtendedPipelineReferencePath>
+        <IsPackable>false</IsPackable>
+        <AssemblyName>Game</AssemblyName>
+        <RootNamespace>Game</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Remove="Icon.ico"/>
+        <None Remove="Icon.bmp"/>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Icon.ico">
+            <LogicalName>Icon.ico</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Icon.bmp">
+            <LogicalName>Icon.bmp</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Aether.Physics2D" Version="2.2.0" />
+        <PackageReference Include="LiteDB" Version="5.0.21" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
+        <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.8" />
+        <PackageReference Include="MonoGame.Extended" Version="6.0.0" />
+        <PackageReference Include="MonoGame.Extended.Content.Pipeline" Version="6.0.0"
+                          PrivateAssets="all" />
+        <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*"/>
+        <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*"/>
+        <PackageReference Include="Myra" Version="1.6.2" />
+        <PackageReference Include="Serilog" Version="4.3.1" />
+        <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+        <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
+        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+        <PackageReference Include="Stateless" Version="5.20.1" />
+    </ItemGroup>
+</Project>

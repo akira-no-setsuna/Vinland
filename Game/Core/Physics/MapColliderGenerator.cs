@@ -5,14 +5,14 @@ using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Common.Decomposition;
 using nkast.Aether.Physics2D.Dynamics;
 using Serilog;
+using Vinland.Core;
 
-namespace Vinland.Core.Physic;
+namespace Game.Core.Physics;
 
 public class MapColliderGenerator
 {
-    private const int PixelsPerMeter = 1;
-    private const string CollisionLayerName = "collision";
-    private const int MinPolygonVertices = 3;
+    private const string COLLISION_LAYER_NAME = "collision";
+    private const int MIN_POLYGON_VERTICES = 3;
     
     public void InitializeFromMap(World world, Tilemap tilemap)
     {
@@ -20,12 +20,12 @@ public class MapColliderGenerator
         // Trying to find the collision layer
         var collisionLayer = tilemap.Layers
             .OfType<TilemapObjectLayer>()
-            .FirstOrDefault(l => l.Name.Equals(CollisionLayerName));
+            .FirstOrDefault(l => l.Name.Equals(COLLISION_LAYER_NAME));
 
         if (collisionLayer == null)
         {
             Log.Warning("Collision layer '{LayerName}' not found in map '{MapName}'.",
-                CollisionLayerName, tilemap.Name);
+                COLLISION_LAYER_NAME, tilemap.Name);
             return;
         }
         
@@ -71,7 +71,7 @@ public class MapColliderGenerator
 
     private bool TryCreatePolygonCollider(World world, TilemapPolygonObject polygonObj)
     {
-        if (polygonObj.Points == null || polygonObj.Points.Length< MinPolygonVertices)
+        if (polygonObj.Points == null || polygonObj.Points.Length< MIN_POLYGON_VERTICES)
         {
             Log.Warning("Polygon object has too few vertices ({Count}), skipping.",
                 polygonObj.Points?.Length ?? 0);
@@ -81,7 +81,7 @@ public class MapColliderGenerator
         var vertices = new Vertices(polygonObj.Points.Length);
         foreach (var localPoint in polygonObj.Points)
         {
-            vertices.Add(localPoint.ToAether() / PixelsPerMeter);
+            vertices.Add(localPoint.ToAether());
         }
         
         // Aether Physics requires CCW polygon orientation
@@ -92,7 +92,7 @@ public class MapColliderGenerator
 
         var body = world.CreateBody(
             bodyType: BodyType.Static,
-            position: polygonObj.Position.ToAether() / PixelsPerMeter);
+            position: polygonObj.Position.ToAether());
         
         CreatePolygonFixture(body, vertices);
         return true;

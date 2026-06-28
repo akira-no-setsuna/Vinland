@@ -1,4 +1,7 @@
 ﻿using System;
+using Game.Core.Entities;
+using Game.Core.Infrastructure;
+using Game.Core.Physics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,18 +13,15 @@ using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
 using Serilog;
-using Vinland.Core;
-using Vinland.Core.Entities;
 using Vinland.Core.Infrastructure;
 using Vinland.Core.Input;
-using Vinland.Core.Physic;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 using Vector2Mono = Microsoft.Xna.Framework.Vector2;
 
 
-namespace Vinland;
+namespace Game;
 
-public class Game1 : Game
+public class Game1 : Microsoft.Xna.Framework.Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
@@ -31,8 +31,8 @@ public class Game1 : Game
     private ChannelHub _channelHub;
     
     // Fixed Update
-    private uint _frameId;
-    private const float FixedDeltaTime = 1f / 60f;
+
+    private const float FIXED_DELTA_TIME = 1f / 60f;
     private float _accumulator;
 
     // Input
@@ -46,7 +46,7 @@ public class Game1 : Game
     private PlayerController _playerController;
     private MapColliderGenerator  _mapColliderGenerator;
     // Draw
-    Vector2Aether _playerRenderPos;
+    Vector2Mono _playerRenderPos;
     
     // Tile map
     Tilemap _tilemap;
@@ -126,7 +126,7 @@ public class Game1 : Game
 
     private void FixedUpdate()
     {
-        _physicWorld.Step(FixedDeltaTime);
+        _physicWorld.Step(FIXED_DELTA_TIME);
         
         // TODO: Problem: Loss of quick keystrokes
         // Input Read
@@ -152,11 +152,10 @@ public class Game1 : Game
         
         _accumulator += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        while (_accumulator >= FixedDeltaTime)
+        while (_accumulator >= FIXED_DELTA_TIME)
         {
             FixedUpdate();
-            _frameId++;
-            _accumulator -= FixedDeltaTime;
+            _accumulator -= FIXED_DELTA_TIME;
         }
         
         // Player position for Draw
@@ -165,7 +164,7 @@ public class Game1 : Game
             if (update.EntityId == "Player")
                 _playerRenderPos = update.Position;
         }
-        _camera.LookAt(_playerRenderPos.ToMono());
+        _camera.LookAt(_playerRenderPos);
         base.Update(gameTime);
     }
     protected override void Draw(GameTime gameTime)
@@ -177,7 +176,7 @@ public class Game1 : Game
             transformMatrix: _camera.GetViewMatrix()
         );
         _tilemapRenderer.Draw(_camera);
-        _spriteBatch.Draw(_playerTexture, _playerRenderPos.ToMono(), Color.White);
+        _spriteBatch.Draw(_playerTexture, _playerRenderPos, Color.White);
         _spriteBatch.End();
         
         _physicsDebug.Draw(_physicWorld, _camera.GetViewMatrix());

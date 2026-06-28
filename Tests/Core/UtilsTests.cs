@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using FluentAssertions;
+using Game.Core;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 using Vector2Mono = Microsoft.Xna.Framework.Vector2;
 using Vinland.Core;

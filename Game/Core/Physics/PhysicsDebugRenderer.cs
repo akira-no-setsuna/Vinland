@@ -4,15 +4,19 @@ using Microsoft.Xna.Framework.Graphics;
 using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Dynamics;
 
-namespace Vinland.Core.Physic;
+namespace Game.Core.Physics;
 
 /// <summary>
 /// Гладкая отрисовка физических тел (полигонов) для отладки.
+/// Все координаты физики (метры) автоматически масштабируются в пиксели через PPM.
 /// </summary>
-public class PhysicsDebugRenderer // WIP: AI code
+public class PhysicsDebugRenderer
 {
     private readonly SpriteBatch _spriteBatch;
     private readonly Texture2D _pixel;
+
+    // 🔑 КЛЮЧЕВАЯ КОНСТАНТА: должна совпадать с PPM в Game1 и MapColliderGenerator
+    private const float PPM = PhysicsScale.PIXELS_PER_METER;
 
     // Более контрастные цвета для отладки
     private static readonly Color StaticColor = new Color(0, 255, 0, 180);      // Ярко-зелёный (стены)
@@ -34,11 +38,10 @@ public class PhysicsDebugRenderer // WIP: AI code
 
     public void Draw(World world, Matrix viewMatrix)
     {
-        // 🔑 ГЛАВНОЕ ИЗМЕНЕНИЕ: LinearClamp вместо PointClamp для гладких линий
         _spriteBatch.Begin(
-            samplerState: SamplerState.LinearClamp, 
+            samplerState: SamplerState.LinearClamp,
             transformMatrix: viewMatrix,
-            blendState: BlendState.AlphaBlend // Чтобы цвета полупрозрачно накладывались на игру
+            blendState: BlendState.AlphaBlend
         );
 
         foreach (var body in world.BodyList)
@@ -63,7 +66,7 @@ public class PhysicsDebugRenderer // WIP: AI code
                 }
             }
 
-            // Рисуем маленький крестик в центре масс тела
+            // Рисуем маленький крестик в центре масс тела (в пикселях)
             DrawCross(body.Position.ToMono(), 3, Color.Yellow);
         }
 
@@ -76,20 +79,20 @@ public class PhysicsDebugRenderer // WIP: AI code
         {
             int next = (i + 1) % vertices.Count;
 
-            // Переводим локальные вершины в мировые координаты
+            // 🔑 Переводим локальные вершины в мировые координаты (метры) → пиксели
             var v1 = body.GetWorldPoint(vertices[i]).ToMono();
             var v2 = body.GetWorldPoint(vertices[next]).ToMono();
 
-            // Толщина линии 2.0f делает её хорошо заметной
+            // Толщина линии 2.0f — в экранных пикселях, не масштабируется
             DrawLine(v1, v2, color, 2.0f);
         }
     }
 
     private void DrawCircle(Body body, CircleShape circle, Color color)
     {
-        // Упрощённая отрисовка круга через 16 сегментов (для отладки этого достаточно)
+        // 🔑 Центр и радиус переводим в пиксели
         var center = body.Position.ToMono();
-        float radius = circle.Radius;
+        float radiusPixels = circle.Radius * PPM;
         int segments = 16;
 
         for (int i = 0; i < segments; i++)
@@ -97,9 +100,10 @@ public class PhysicsDebugRenderer // WIP: AI code
             float angle1 = (float)(i * 2.0 * Math.PI / segments);
             float angle2 = (float)((i + 1) * 2.0 * Math.PI / segments);
 
-            var v1 = center + new Vector2((float)Math.Cos(angle1) * radius, (float)Math.Sin(angle1) * radius);
-            var v2 = center + new Vector2((float)Math.Cos(angle2) * radius, (float)Math.Sin(angle2) * radius);
-
+            var v1 = center + new Vector2((float)Math.Cos(angle1) * radiusPixels,
+                                          (float)Math.Sin(angle1) * radiusPixels);
+            var v2 = center + new Vector2((float)Math.Cos(angle2) * radiusPixels,
+                                          (float)Math.Sin(angle2) * radiusPixels);
             DrawLine(v1, v2, color, 1.0f);
         }
     }
@@ -107,7 +111,7 @@ public class PhysicsDebugRenderer // WIP: AI code
     private void DrawLine(Vector2 start, Vector2 end, Color color, float thickness)
     {
         float distance = Vector2.Distance(start, end);
-        if (distance < 0.01f) return; // Защита от деления на ноль или артефактов
+        if (distance < 0.01f) return;
 
         float angle = (float)Math.Atan2(end.Y - start.Y, end.X - start.X);
 
@@ -117,16 +121,16 @@ public class PhysicsDebugRenderer // WIP: AI code
             null,
             color,
             angle,
-            Vector2.Zero,                 // origin в левом верхнем углу текстуры
+            Vector2.Zero,
             new Vector2(distance, thickness),
             SpriteEffects.None,
             0f
         );
     }
 
-    private void DrawCross(Vector2 center, float size, Color color)
+    private void DrawCross(Vector2 centerPixels, float size, Color color)
     {
-        DrawLine(center + new Vector2(-size, 0), center + new Vector2(size, 0), color, 1.5f);
-        DrawLine(center + new Vector2(0, -size), center + new Vector2(0, size), color, 1.5f);
+        DrawLine(centerPixels + new Vector2(-size, 0), centerPixels + new Vector2(size, 0), color, 1.5f);
+        DrawLine(centerPixels + new Vector2(0, -size), centerPixels + new Vector2(0, size), color, 1.5f);
     }
 }

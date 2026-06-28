@@ -1,3 +1,5 @@
-﻿using var game = new Vinland.Game1();
+﻿using Game;
+
+using var game = new Game1();
 game.Run();
 

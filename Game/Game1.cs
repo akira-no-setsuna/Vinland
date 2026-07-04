@@ -13,7 +13,6 @@ using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
 using Serilog;
-using Vinland.Core.Infrastructure;
 using Vinland.Core.Input;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 using Vector2Mono = Microsoft.Xna.Framework.Vector2;
@@ -31,7 +30,6 @@ public class Game1 : Microsoft.Xna.Framework.Game
     private ChannelHub _channelHub;
     
     // Fixed Update
-
     private const float FIXED_DELTA_TIME = 1f / 60f;
     private float _accumulator;
 
@@ -86,7 +84,6 @@ public class Game1 : Microsoft.Xna.Framework.Game
         
         // Thread
         _threadManager.Start();
-        
         base.Initialize(); 
     }
     
@@ -155,6 +152,7 @@ public class Game1 : Microsoft.Xna.Framework.Game
         while (_accumulator >= FIXED_DELTA_TIME)
         {
             FixedUpdate();
+            GameClock.Increment();
             _accumulator -= FIXED_DELTA_TIME;
         }
         

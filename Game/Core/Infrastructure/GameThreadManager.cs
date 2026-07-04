@@ -5,14 +5,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
 
-namespace Vinland.Core.Infrastructure;
+namespace Game.Core.Infrastructure;
 
 public class GameThreadManager : IDisposable
 {
     private readonly CancellationTokenSource _cts = new();
+    
     private Task? _logicThread;
     private Task? _physicsThread;
-    private Task? _dataThread;      
+    private Task? _dataThread;
+    
     private bool _disposed;
     private int _started;   
 

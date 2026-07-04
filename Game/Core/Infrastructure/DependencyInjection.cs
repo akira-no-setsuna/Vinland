@@ -1,10 +1,13 @@
 ﻿using System;
-using Game.Core.Infrastructure;
+using System.Threading;
+using Game.Core.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
 using Serilog;
+using Serilog.Core;
+using Serilog.Events;
 
-namespace Vinland.Core.Infrastructure;
+namespace Game.Core.Infrastructure;
 
 public static class DependencyInjection
 {
@@ -12,20 +15,13 @@ public static class DependencyInjection
     {
         var services = new ServiceCollection();
         
-        // Logging (Serilog)
-        var serilogLogger = new LoggerConfiguration()
-            .WriteTo.Async(a => a.File("logs/game-.txt", rollingInterval: RollingInterval.Day))
-            .Enrich.WithThreadId()
-            .MinimumLevel.Debug() 
-            .CreateLogger();
-        
-        Log.Logger = serilogLogger;
-        
-        services.AddSingleton<Serilog.ILogger>(serilogLogger);
+        services.AddSingleton<Serilog.ILogger>(GameLogger.Configure(true));
         services.AddSingleton<ChannelHub>();
         services.AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
         services.AddSingleton<GameThreadManager>();
         
         return services.BuildServiceProvider();
-    }
+    } 
 }
+
+

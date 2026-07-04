@@ -1,8 +1,8 @@
 ﻿using Xunit;
 using FluentAssertions;
-using Vinland.Core.Infrastructure;
 using System;
 using System.Threading;
+using Game.Core.Infrastructure;
 
 namespace Tests.Unit
 {

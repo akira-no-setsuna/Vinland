@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Game.Core.Infrastructure.Services;
 using Serilog;
 using Xunit;
 
@@ -17,7 +18,7 @@ public class SerilogThreadSafetyTests : IDisposable
         _logFilePath = $"logs/test-thread-safety-{Guid.NewGuid()}.txt";
         
         // Настраиваем Serilog с синхронной записью и явным шаблоном, включающим ThreadId
-        var logger = new LoggerConfiguration()
+        var logger = new GameLogger()
             .WriteTo.File(
                 _logFilePath,
                 outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{ThreadId}] {Level:u3} {Message:lj}{NewLine}{Exception}"

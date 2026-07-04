@@ -1,7 +1,6 @@
 ﻿using Xunit;
 using FluentAssertions;
 using Game.Core.Infrastructure;
-using Vinland.Core.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
 using Serilog;

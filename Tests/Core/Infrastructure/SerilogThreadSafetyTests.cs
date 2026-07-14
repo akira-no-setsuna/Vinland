@@ -15,19 +15,10 @@ public class SerilogThreadSafetyTests : IDisposable
 
     public SerilogThreadSafetyTests()
     {
-        _logFilePath = $"logs/test-thread-safety-{Guid.NewGuid()}.txt";
+        bool isDebug = true;
         
         // Настраиваем Serilog с синхронной записью и явным шаблоном, включающим ThreadId
-        var logger = new GameLogger()
-            .WriteTo.File(
-                _logFilePath,
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{ThreadId}] {Level:u3} {Message:lj}{NewLine}{Exception}"
-            )
-            .Enrich.WithThreadId()
-            .MinimumLevel.Debug()
-            .CreateLogger();
-
-        Log.Logger = logger;
+        var logger = GameLogger.Configure(isDebug);
     }
 
     [Fact]

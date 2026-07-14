@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using FluentAssertions;
 using Game.Core.Entities;
 using Vinland.Core.Input;
@@ -9,6 +9,8 @@ namespace Tests.Integration
 {
     public class PlayerControllerTests
     {
+        private const float SPEED = 5f;
+        
         [Fact]
         public void FixedUpdate_WithMoveUp_SetsVelocityUp()
         {
@@ -18,7 +20,7 @@ namespace Tests.Integration
             var controller = new PlayerController(body);
             var input = new InputCommand(false, false, true, false, false);
             controller.FixedUpdate(input);
-            body.LinearVelocity.Y.Should().Be(-50f);
+            body.LinearVelocity.Y.Should().Be(-SPEED);
             body.LinearVelocity.X.Should().Be(0);
         }
 
@@ -31,7 +33,7 @@ namespace Tests.Integration
             var controller = new PlayerController(body);
             var input = new InputCommand(false, false, false, true, false);
             controller.FixedUpdate(input);
-            body.LinearVelocity.Y.Should().Be(50f);
+            body.LinearVelocity.Y.Should().Be(SPEED);
         }
 
         [Fact]
@@ -43,7 +45,7 @@ namespace Tests.Integration
             var controller = new PlayerController(body);
             var input = new InputCommand(true, false, false, false, false);
             controller.FixedUpdate(input);
-            body.LinearVelocity.X.Should().Be(-50f);
+            body.LinearVelocity.X.Should().Be(-SPEED);
         }
 
         [Fact]
@@ -55,7 +57,7 @@ namespace Tests.Integration
             var controller = new PlayerController(body);
             var input = new InputCommand(false, true, false, false, false);
             controller.FixedUpdate(input);
-            body.LinearVelocity.X.Should().Be(50f);
+            body.LinearVelocity.X.Should().Be(SPEED);
         }
 
         [Fact]
@@ -69,7 +71,7 @@ namespace Tests.Integration
             controller.FixedUpdate(input);
             var expected = new Vector2Aether(-1, -1);
             expected.Normalize();
-            expected *= 50f;
+            expected *= SPEED;
             body.LinearVelocity.X.Should().BeApproximately(expected.X, 1e-6f);
             body.LinearVelocity.Y.Should().BeApproximately(expected.Y, 1e-6f);
         }

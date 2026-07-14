@@ -7,16 +7,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cbe87e0a-a75a-4ab5-ad82-cfda4f7300bd" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Game/Core/Infrastructure/GameClock.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Game/Core/Infrastructure/Services/GameLogger.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Vinland/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Vinland/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Game/Core/Infrastructure/DependencyInjection.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Core/Infrastructure/DependencyInjection.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Game/Core/Infrastructure/GameThreadManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Core/Infrastructure/GameThreadManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Game/Game1.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Game1.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Tests/Core/Infrastructure/ChannelHubTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/Core/Infrastructure/ChannelHubTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Tests/Core/Infrastructure/DependecyInjectionTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/Core/Infrastructure/DependecyInjectionTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Tests/Core/Infrastructure/GameThreadManagerTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/Core/Infrastructure/GameThreadManagerTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Tests/Core/Infrastructure/SerilogThreadSafetyTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/Core/Infrastructure/SerilogThreadSafetyTests.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,7 +29,6 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Game/Core/Infrastructure/GameClock.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Game/Core/Infrastructure/Services/Logger.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Game/Core/Physics/MapColliderGenerator.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Game/Game1.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Game/Program.cs" root0="FORCE_HIGHLIGHTING" />
@@ -132,7 +122,7 @@
       <workItem from="1782742755659" duration="8200000" />
       <workItem from="1783030932097" duration="36000" />
       <workItem from="1783181003071" duration="855000" />
-      <workItem from="1783183466313" duration="1200000" />
+      <workItem from="1783183466313" duration="4776000" />
     </task>
     <task id="LOCAL-00001" summary="Added:&#10;    FixedUpdate&#10;    Basis for DI&#10;    Base physic&#10;    InputCommand.cs and KbmInputSource.cs&#10;    ChannelHub.cs and two chanels:&#10;        Physic to Main&#10;        Main to Logic&#10;Summary:&#10;    Basic player movement with WASD and rendering of his sprite">
       <option name="closed" value="true" />
@@ -238,7 +228,15 @@
       <option name="project" value="LOCAL" />
       <updated>1782322275143</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="The fixed game step has been improved and integrated into the logger.">
+      <option name="closed" value="true" />
+      <created>1783184686290</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1783184686290</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -319,7 +317,8 @@
     <MESSAGE value="Minor changes" />
     <MESSAGE value="Covered the code with tests" />
     <MESSAGE value="Fixed broken tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed broken tests" />
+    <MESSAGE value="The fixed game step has been improved and integrated into the logger." />
+    <option name="LAST_COMMIT_MESSAGE" value="The fixed game step has been improved and integrated into the logger." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

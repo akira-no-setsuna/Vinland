@@ -8,6 +8,9 @@
   <component name="ChangeListManager">
     <list default="true" id="cbe87e0a-a75a-4ab5-ad82-cfda4f7300bd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Vinland/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Vinland/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tests/Core/Entities/PlayerControllerTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/Core/Entities/PlayerControllerTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tests/Core/Infrastructure/SerilogThreadSafetyTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/Core/Infrastructure/SerilogThreadSafetyTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tests/Core/UtilsTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/Core/UtilsTests.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +68,7 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager">
+  <component name="RunManager" selected=".NET Project.Game">
     <configuration name="Game" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="$PROJECT_DIR$/Game/bin/Debug/net9.0/Game.exe" />
       <option name="PROGRAM_PARAMETERS" value="" />
@@ -123,6 +126,7 @@
       <workItem from="1783030932097" duration="36000" />
       <workItem from="1783181003071" duration="855000" />
       <workItem from="1783183466313" duration="4776000" />
+      <workItem from="1784050445017" duration="814000" />
     </task>
     <task id="LOCAL-00001" summary="Added:&#10;    FixedUpdate&#10;    Basis for DI&#10;    Base physic&#10;    InputCommand.cs and KbmInputSource.cs&#10;    ChannelHub.cs and two chanels:&#10;        Physic to Main&#10;        Main to Logic&#10;Summary:&#10;    Basic player movement with WASD and rendering of his sprite">
       <option name="closed" value="true" />
@@ -236,7 +240,15 @@
       <option name="project" value="LOCAL" />
       <updated>1783184686290</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Small fix in SerilogThreadSafetyTests.cs">
+      <option name="closed" value="true" />
+      <created>1784050739758</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1784050739758</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -318,7 +330,8 @@
     <MESSAGE value="Covered the code with tests" />
     <MESSAGE value="Fixed broken tests" />
     <MESSAGE value="The fixed game step has been improved and integrated into the logger." />
-    <option name="LAST_COMMIT_MESSAGE" value="The fixed game step has been improved and integrated into the logger." />
+    <MESSAGE value="Small fix in SerilogThreadSafetyTests.cs" />
+    <option name="LAST_COMMIT_MESSAGE" value="Small fix in SerilogThreadSafetyTests.cs" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

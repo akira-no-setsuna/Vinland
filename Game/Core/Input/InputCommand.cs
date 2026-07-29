@@ -1,4 +1,4 @@
-﻿namespace Vinland.Core.Input;
+namespace Game.Core.Input;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 
 public readonly record struct InputCommand(

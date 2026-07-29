@@ -8,9 +8,20 @@
   <component name="ChangeListManager">
     <list default="true" id="cbe87e0a-a75a-4ab5-ad82-cfda4f7300bd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Vinland/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Vinland/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Game/Core/Entities/PlayerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Core/Entities/PlayerController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Game/Core/Infrastructure/ChannelHub.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Core/Infrastructure/ChannelHub.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Game/Core/Infrastructure/DependencyInjection.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Core/Infrastructure/DependencyInjection.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Game/Core/Infrastructure/GameThreadManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Core/Infrastructure/GameThreadManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Game/Core/Infrastructure/Services/GameLogger.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Core/Infrastructure/Services/GameLogger.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Game/Core/Input/InputCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Core/Input/InputCommand.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Game/Core/Input/KbmInputSource.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Core/Input/KbmInputSource.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Game/Core/Logic/LogicCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Core/Logic/LogicCommand.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Game/Core/Physics/MapColliderGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Core/Physics/MapColliderGenerator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Game/Game1.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Game/Game1.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Tests/Core/Entities/PlayerControllerTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/Core/Entities/PlayerControllerTests.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Tests/Core/Infrastructure/SerilogThreadSafetyTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/Core/Infrastructure/SerilogThreadSafetyTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Tests/Core/UtilsTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/Core/UtilsTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tests/Core/Input/InputCommandTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/Core/Input/InputCommandTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plan.txt" beforeDir="false" afterPath="$PROJECT_DIR$/plan.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,7 +35,7 @@
     <branch-grouping />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="fix" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -32,6 +43,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Game/Core/Infrastructure/GameClock.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Game/Core/Infrastructure/Services/GameLogger.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Game/Core/Physics/MapColliderGenerator.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Game/Game1.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Game/Program.cs" root0="FORCE_HIGHLIGHTING" />
@@ -52,23 +64,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Project.Game.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Project.Vinland.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;refactor&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Projects/Vinland&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.C#&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Project.Game.executor": "Run",
+    ".NET Project.Vinland.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "refactor",
+    "last_opened_file_path": "D:/Projects/Vinland",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.sourceCode.C#",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
-  <component name="RunManager" selected=".NET Project.Game">
+}]]></component>
+  <component name="RunManager">
     <configuration name="Game" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="$PROJECT_DIR$/Game/bin/Debug/net9.0/Game.exe" />
       <option name="PROGRAM_PARAMETERS" value="" />
@@ -122,11 +134,6 @@
       <workItem from="1782166683002" duration="3121000" />
       <workItem from="1782320708219" duration="2774000" />
       <workItem from="1782675512027" duration="2036000" />
-      <workItem from="1782742755659" duration="8200000" />
-      <workItem from="1783030932097" duration="36000" />
-      <workItem from="1783181003071" duration="855000" />
-      <workItem from="1783183466313" duration="4776000" />
-      <workItem from="1784050445017" duration="814000" />
     </task>
     <task id="LOCAL-00001" summary="Added:&#10;    FixedUpdate&#10;    Basis for DI&#10;    Base physic&#10;    InputCommand.cs and KbmInputSource.cs&#10;    ChannelHub.cs and two chanels:&#10;        Physic to Main&#10;        Main to Logic&#10;Summary:&#10;    Basic player movement with WASD and rendering of his sprite">
       <option name="closed" value="true" />
@@ -232,23 +239,7 @@
       <option name="project" value="LOCAL" />
       <updated>1782322275143</updated>
     </task>
-    <task id="LOCAL-00014" summary="The fixed game step has been improved and integrated into the logger.">
-      <option name="closed" value="true" />
-      <created>1783184686290</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1783184686290</updated>
-    </task>
-    <task id="LOCAL-00015" summary="Small fix in SerilogThreadSafetyTests.cs">
-      <option name="closed" value="true" />
-      <created>1784050739758</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1784050739758</updated>
-    </task>
-    <option name="localTasksCounter" value="16" />
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -329,9 +320,7 @@
     <MESSAGE value="Minor changes" />
     <MESSAGE value="Covered the code with tests" />
     <MESSAGE value="Fixed broken tests" />
-    <MESSAGE value="The fixed game step has been improved and integrated into the logger." />
-    <MESSAGE value="Small fix in SerilogThreadSafetyTests.cs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Small fix in SerilogThreadSafetyTests.cs" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed broken tests" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

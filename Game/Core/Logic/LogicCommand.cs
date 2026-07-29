@@ -1,4 +1,4 @@
-﻿namespace Vinland.Core.Logic;
+namespace Game.Core.Logic;
 
 public readonly record struct LogicCommand
 {

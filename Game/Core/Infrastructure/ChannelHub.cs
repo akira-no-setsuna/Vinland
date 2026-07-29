@@ -1,6 +1,6 @@
-﻿using System.Threading.Channels;
-using Vinland.Core.Input;
-using Vinland.Core.Logic;
+using System.Threading.Channels;
+using Game.Core.Input;
+using Game.Core.Logic;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 using Vector2Mono = Microsoft.Xna.Framework.Vector2;
 

@@ -1,7 +1,7 @@
-﻿using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input;
 
-namespace Vinland.Core.Input;
+namespace Game.Core.Input;
 
 public class KbmInputSource : IInputSource
 {

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Threading;
+using System;
 using Game.Core.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
-using Serilog;
-using Serilog.Core;
-using Serilog.Events;
 
 namespace Game.Core.Infrastructure;
 

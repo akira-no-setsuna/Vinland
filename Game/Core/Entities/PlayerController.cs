@@ -1,5 +1,5 @@
-﻿using nkast.Aether.Physics2D.Dynamics;
-using Vinland.Core.Input;
+using nkast.Aether.Physics2D.Dynamics;
+using Game.Core.Input;
 using Vector2Aether =  nkast.Aether.Physics2D.Common.Vector2;
 
 namespace Game.Core.Entities;

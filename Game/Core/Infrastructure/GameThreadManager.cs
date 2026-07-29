@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Linq;
 using System.Threading;
@@ -33,11 +33,7 @@ public class GameThreadManager : IDisposable
             _cts.Token,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default).Unwrap();    
-        _dataThread = Task.Factory.StartNew(
-            DataLoop,
-            _cts.Token,
-            TaskCreationOptions.LongRunning,
-            TaskScheduler.Default).Unwrap();    
+        _dataThread = Task.Run(DataLoop);    
         
         Log.Debug("Threads started.");
     }
@@ -95,7 +91,6 @@ public class GameThreadManager : IDisposable
         try
         {
             Thread.CurrentThread.Name = "DataThread";
-            Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
             Thread.CurrentThread.IsBackground = true;
         
             var token = _cts.Token;
@@ -126,6 +121,7 @@ public class GameThreadManager : IDisposable
 
         var tasks = new[] { _logicThread, _physicsThread, _dataThread }
             .Where(t => t != null)
+            .Select(t => t!)
             .ToArray();
 
         if (tasks.Length == 0) return true;

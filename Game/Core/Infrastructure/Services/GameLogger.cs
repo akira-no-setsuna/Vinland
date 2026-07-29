@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using Serilog;
 using Serilog.Core;
@@ -8,7 +8,6 @@ namespace Game.Core.Infrastructure.Services;
 
 public class GameLogger
 {
-    private const string LOG_DIRECTORY = "logs";
     private const string LOG_FILE_TEMPLATE = "logs/game-.log";
 
     public static Serilog.ILogger Configure(bool isDebug)

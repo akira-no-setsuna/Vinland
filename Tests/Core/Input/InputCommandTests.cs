@@ -1,6 +1,6 @@
-﻿using Xunit;
+using Xunit;
 using FluentAssertions;
-using Vinland.Core.Input;
+using Game.Core.Input;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 
 namespace Tests.Unit

@@ -1,11 +1,11 @@
-﻿using System.Linq;
+using System.Linq;
 using MonoGame.Extended.Tilemaps;
 using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Common.Decomposition;
 using nkast.Aether.Physics2D.Dynamics;
 using Serilog;
-using Vinland.Core;
+using Game.Core;
 
 namespace Game.Core.Physics;
 

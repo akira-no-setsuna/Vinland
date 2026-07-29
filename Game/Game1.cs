@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Game.Core.Entities;
 using Game.Core.Infrastructure;
 using Game.Core.Physics;
@@ -13,7 +13,7 @@ using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
 using Serilog;
-using Vinland.Core.Input;
+using Game.Core.Input;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 using Vector2Mono = Microsoft.Xna.Framework.Vector2;
 

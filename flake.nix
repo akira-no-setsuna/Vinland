@@ -1,5 +1,5 @@
 {
-  description = "Vinland MonoGame DevEnv";
+  description = "Vinland DevEnv";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -10,37 +10,12 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        runtimeLibs = with pkgs; [
-
-          stdenv.cc.cc.lib   # libc, libstdc++
-          zlib               # сжатие
-          icu                # интернационализация
-          openssl            # HTTPS
-
-          # MonoGame
-          SDL2               # окно, ввод, рендеринг
-          openal             # звук (OpenAL Soft)
-          libGL              # OpenGL
-          libglvnd
-          libudev-zero       # геймпады / hotplug
-
-          libvorbis          # .ogg аудио
-          libogg
-          freetype           # шрифты (SpriteFont)
-
-          libX11
-          libXcursor
-          libXi
-          libXrandr
-          libXext
-        ];
       in
       {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             dotnet-sdk_10
             omnisharp-roslyn
-            dotnet-mgcb  # MonoGame Content Builder
           ];
 
           DOTNET_ROOT = "${pkgs.dotnet-sdk_10}";
@@ -51,16 +26,30 @@
 
           OMNISHARP_TIMEOUT = "10000";
 
-          NIX_LD = pkgs.lib.fileContents "${pkgs.stdenv.cc}/nix-support/dynamic-linker";
-          NIX_LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath runtimeLibs;
+            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+            # Графика и окна
+            pkgs.libGL
+            pkgs.libx11          # было xorg.libX11
+            pkgs.libxi           # было xorg.libXi
+            pkgs.libxcursor      # было xorg.libXcursor
+            pkgs.libxrandr       # было xorg.libXrandr
+            pkgs.libxinerama     # было xorg.libXinerama
+            
+            # Wayland (на случай, если MonoGame или SDL решат его использовать)
+            pkgs.wayland
+            pkgs.libxkbcommon
+            
+            # Звук
+            pkgs.alsa-lib
+            pkgs.openal
+            
+            # Шрифты
+            pkgs.fontconfig
+            pkgs.freetype
+          ];
 
-          LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath runtimeLibs;
-
+          # SSL-сертификаты (нужно для NuGet restore)
           SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
-
-          __NV_PRIME_RENDER_OFFLOAD = "1";
-          __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-          __VK_LAYER_NV_optimus = "NVIDIA_only";
         };
       }
     );

@@ -37,6 +37,8 @@ IN_NIX_SHELL='impure'
 export IN_NIX_SHELL
 LD='ld'
 export LD
+LD_LIBRARY_PATH='/nix/store/v8x5c24y4zgxv5xmwhz5lz26ir816c31-libglvnd-1.7.0/lib:/nix/store/45naqds5dkzsmmrh61wbxbfci73san7n-libx11-1.8.13/lib:/nix/store/s1j6wf4fdb4v18byqbnh7s3dmizx3jjg-libxi-1.8.3/lib:/nix/store/nbmch0g2bi2rjpfxvyi056j21f2l1pkr-libxcursor-1.2.3/lib:/nix/store/m5ikb8j00nc9591p8ls752fn89wbwaz8-libxrandr-1.5.5/lib:/nix/store/8pm00q15mv5h8v8pf4gi3fh7s69lxw8b-libxinerama-1.1.6/lib:/nix/store/msjil83s4z6f0h373c8q4fm7rkhjax46-wayland-1.26.0/lib:/nix/store/bn21gzsggp8dvzfizi3nhhmz0s555ybq-libxkbcommon-1.13.2/lib:/nix/store/3dbrmhhns34l05k4640ag3ckdk53b5x5-alsa-lib-1.2.16.1/lib:/nix/store/7bc28jscb8s8fm5p2ggmgdy4j21lz0xk-openal-soft-1.24.3/lib:/nix/store/l9i81aw8mlp1mddq9ayy8m5iyi71s94z-fontconfig-2.18.1-lib/lib:/nix/store/4ysy3x46fpac2kl7b7siyb04fzqymmqy-freetype-2.14.3/lib'
+export LD_LIBRARY_PATH
 LINENO='79'
 MACHTYPE='x86_64-pc-linux-gnu'
 MSBUILDALWAYSOVERWRITEREADONLYFILES='1'
@@ -53,7 +55,7 @@ NIX_CC='/nix/store/adcz0m6qq2flmshdf0zz2xwjr5zbq1gr-gcc-wrapper-15.3.0'
 export NIX_CC
 NIX_CC_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu='1'
 export NIX_CC_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu
-NIX_CFLAGS_COMPILE=' -frandom-seed=wzz5jbsr7q'
+NIX_CFLAGS_COMPILE=' -frandom-seed=zw4c8hcr1h'
 export NIX_CFLAGS_COMPILE
 NIX_ENFORCE_NO_NATIVE='1'
 export NIX_ENFORCE_NO_NATIVE

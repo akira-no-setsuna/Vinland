@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
 
-namespace Game.Core.Infrastructure;
+namespace Game.Core.Infrastructure.Services;
 
 public class GameThreadManager : IDisposable
 {
@@ -157,7 +157,7 @@ public class GameThreadManager : IDisposable
         
     }
 
-    protected virtual void Dispose(bool disposing)
+    public void Dispose(bool disposing)
     {
         if (_disposed) return;
         if (disposing)

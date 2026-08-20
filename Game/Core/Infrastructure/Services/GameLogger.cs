@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Threading;
 using Serilog;
 using Serilog.Core;
@@ -6,7 +7,7 @@ using Serilog.Events;
 
 namespace Game.Core.Infrastructure.Services;
 
-public class GameLogger
+public static class GameLogger
 {
     private const string LOG_FILE_TEMPLATE = "logs/game-.log";
 
@@ -22,11 +23,12 @@ public class GameLogger
             // Enrichers
             .Enrich.WithThreadId()
             .Enrich.With<ThreadNameEnricher>()
-            .Enrich.With<GameTickEnricher>()
+            // .Enrich.With<GameTickEnricher>()
             
             // Main Log
             .WriteTo.Async(a => a.File(
                 path: LOG_FILE_TEMPLATE,
+                formatProvider: CultureInfo.InvariantCulture,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 7,
                 fileSizeLimitBytes: 10 * 1024 * 1024, // 10 MB
@@ -52,21 +54,12 @@ public class GameLogger
     }
 }
 
-// Custom Enricher for game tick
-public class GameTickEnricher : ILogEventEnricher
-{
-    public void Enrich(LogEvent logEvent, ILogEventPropertyFactory factory)
-    {
-        logEvent.AddPropertyIfAbsent(factory.CreateProperty("GameTick", GameClock.Current));
-    }
-}
-
 // Custom Enricher for thread name
 public class ThreadNameEnricher : ILogEventEnricher
 {
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
     {
-        var name = Thread.CurrentThread.Name ?? $"Thread-{Thread.CurrentThread.ManagedThreadId}";
+        var name = Thread.CurrentThread.Name ?? $"Thread-{Environment.CurrentManagedThreadId}";
         logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("ThreadName", name));
     }
 }

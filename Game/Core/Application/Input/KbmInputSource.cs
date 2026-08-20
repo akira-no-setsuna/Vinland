@@ -1,11 +1,12 @@
+using System.Threading.Channels;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input;
 
-namespace Game.Core.Input;
+namespace Game.Core.Application.Input;
 
-public class KbmInputSource : IInputSource
+public class KbmInputSource(ChannelWriter<InputCommand> writer) : InputSource(writer)
 {
-    public InputCommand ReadInput()
+    protected override InputCommand ReadInput()
     {
         var keyboardState = KeyboardExtended.GetState();
         // var keyboardState = Keyboard.GetState();

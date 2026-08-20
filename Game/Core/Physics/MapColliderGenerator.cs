@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using MonoGame.Extended.Tilemaps;
 using nkast.Aether.Physics2D.Collision.Shapes;
@@ -5,7 +6,7 @@ using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Common.Decomposition;
 using nkast.Aether.Physics2D.Dynamics;
 using Serilog;
-using Game.Core;
+using Game.Core.Infrastructure;
 
 namespace Game.Core.Physics;
 
@@ -20,7 +21,7 @@ public class MapColliderGenerator
         // Trying to find the collision layer
         var collisionLayer = tilemap.Layers
             .OfType<TilemapObjectLayer>()
-            .FirstOrDefault(l => l.Name.Equals(COLLISION_LAYER_NAME));
+            .FirstOrDefault(l => l.Name.Equals(COLLISION_LAYER_NAME, StringComparison.Ordinal));
 
         if (collisionLayer == null)
         {
@@ -81,7 +82,7 @@ public class MapColliderGenerator
         var vertices = new Vertices(polygonObj.Points.Length);
         foreach (var localPoint in polygonObj.Points)
         {
-            vertices.Add(localPoint.ToAether());
+            vertices.Add(localPoint.ToWorld());
         }
         
         // Aether Physics requires CCW polygon orientation
@@ -92,7 +93,7 @@ public class MapColliderGenerator
 
         var body = world.CreateBody(
             bodyType: BodyType.Static,
-            position: polygonObj.Position.ToAether());
+            position: polygonObj.Position.ToWorld());
         
         CreatePolygonFixture(body, vertices);
         return true;

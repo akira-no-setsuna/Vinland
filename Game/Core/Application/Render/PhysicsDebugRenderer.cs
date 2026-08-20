@@ -1,10 +1,11 @@
 ﻿using System;
+using Game.Core.Infrastructure;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Dynamics;
 
-namespace Game.Core.Physics;
+namespace Game.Core.Application.Render;
 
 /// <summary>
 /// Гладкая отрисовка физических тел (полигонов) для отладки.
@@ -32,11 +33,11 @@ public class PhysicsDebugRenderer
     private Texture2D CreatePixelTexture(GraphicsDevice gd)
     {
         var tex = new Texture2D(gd, 1, 1);
-        tex.SetData(new[] { Color.White });
+        tex.SetData([Color.White]);
         return tex;
     }
 
-    public void Draw(World world, Matrix viewMatrix)
+    public void Draw(BodyCollection bodyList, Matrix viewMatrix)
     {
         _spriteBatch.Begin(
             samplerState: SamplerState.LinearClamp,
@@ -44,7 +45,7 @@ public class PhysicsDebugRenderer
             blendState: BlendState.AlphaBlend
         );
 
-        foreach (var body in world.BodyList)
+        foreach (var body in bodyList)
         {
             var color = body.BodyType switch
             {
@@ -67,7 +68,7 @@ public class PhysicsDebugRenderer
             }
 
             // Рисуем маленький крестик в центре масс тела (в пикселях)
-            DrawCross(body.Position.ToMono(), 3, Color.Yellow);
+            DrawCross(body.Position.ToScreen(), 3, Color.Yellow);
         }
 
         _spriteBatch.End();
@@ -80,8 +81,8 @@ public class PhysicsDebugRenderer
             int next = (i + 1) % vertices.Count;
 
             // 🔑 Переводим локальные вершины в мировые координаты (метры) → пиксели
-            var v1 = body.GetWorldPoint(vertices[i]).ToMono();
-            var v2 = body.GetWorldPoint(vertices[next]).ToMono();
+            var v1 = body.GetWorldPoint(vertices[i]).ToScreen();
+            var v2 = body.GetWorldPoint(vertices[next]).ToScreen();
 
             // Толщина линии 2.0f — в экранных пикселях, не масштабируется
             DrawLine(v1, v2, color, 2.0f);
@@ -91,7 +92,7 @@ public class PhysicsDebugRenderer
     private void DrawCircle(Body body, CircleShape circle, Color color)
     {
         // 🔑 Центр и радиус переводим в пиксели
-        var center = body.Position.ToMono();
+        var center = body.Position.ToScreen();
         float radiusPixels = circle.Radius * PPM;
         int segments = 16;
 
@@ -132,5 +133,11 @@ public class PhysicsDebugRenderer
     {
         DrawLine(centerPixels + new Vector2(-size, 0), centerPixels + new Vector2(size, 0), color, 1.5f);
         DrawLine(centerPixels + new Vector2(0, -size), centerPixels + new Vector2(0, size), color, 1.5f);
+    }
+    
+    public void Dispose()
+    {
+        _pixel?.Dispose();
+        _spriteBatch?.Dispose();
     }
 }

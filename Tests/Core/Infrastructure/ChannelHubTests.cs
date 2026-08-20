@@ -1,6 +1,7 @@
 ﻿using Xunit;
 using FluentAssertions;
 using Game.Core.Infrastructure;
+using Game.Core.Infrastructure.Channels;
 
 namespace Tests.Unit
 {
@@ -11,7 +12,7 @@ namespace Tests.Unit
         {
             var hub = new ChannelHub();
             hub.PhysicsToMain.Should().NotBeNull();
-            hub.MainToLogic.Should().NotBeNull();
+            hub.InputToLogic.Should().NotBeNull();
             hub.LogicToMain.Should().NotBeNull();
         }
 
@@ -19,8 +20,8 @@ namespace Tests.Unit
         public void Channels_HaveCapacityOneAndDropOldestPolicy()
         {
             var hub = new ChannelHub();
-            hub.PhysicsToMain.Writer.TryWrite(new PhysicsUpdate("test", default));
-            hub.PhysicsToMain.Writer.TryWrite(new PhysicsUpdate("test2", default));
+            hub.PhysicsToMain.Writer.TryWrite(new PositionUpdate("test", default));
+            hub.PhysicsToMain.Writer.TryWrite(new PositionUpdate("test2", default));
 
             // В канале должно быть только одно сообщение (второе)
             var reader = hub.PhysicsToMain.Reader;

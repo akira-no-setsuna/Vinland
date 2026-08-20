@@ -3,6 +3,7 @@ using FluentAssertions;
 using System;
 using System.Threading;
 using Game.Core.Infrastructure;
+using Game.Core.Infrastructure.Services;
 
 namespace Tests.Unit
 {

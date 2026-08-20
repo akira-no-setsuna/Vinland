@@ -1,6 +1,8 @@
 ﻿using Xunit;
 using FluentAssertions;
 using Game.Core.Infrastructure;
+using Game.Core.Infrastructure.Channels;
+using Game.Core.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
 using Serilog;

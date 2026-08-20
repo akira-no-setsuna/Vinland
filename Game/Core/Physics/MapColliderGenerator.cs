@@ -1,11 +1,12 @@
+using System;
 using System.Linq;
+using Game.Core.Infrastructure;
 using MonoGame.Extended.Tilemaps;
 using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Common.Decomposition;
 using nkast.Aether.Physics2D.Dynamics;
 using Serilog;
-using Game.Core;
 
 namespace Game.Core.Physics;
 
@@ -13,14 +14,13 @@ public class MapColliderGenerator
 {
     private const string COLLISION_LAYER_NAME = "collision";
     private const int MIN_POLYGON_VERTICES = 3;
-    
+
     public void InitializeFromMap(World world, Tilemap tilemap)
     {
-        
         // Trying to find the collision layer
         var collisionLayer = tilemap.Layers
             .OfType<TilemapObjectLayer>()
-            .FirstOrDefault(l => l.Name.Equals(COLLISION_LAYER_NAME));
+            .FirstOrDefault(l => l.Name.Equals(COLLISION_LAYER_NAME, StringComparison.Ordinal));
 
         if (collisionLayer == null)
         {
@@ -28,12 +28,11 @@ public class MapColliderGenerator
                 COLLISION_LAYER_NAME, tilemap.Name);
             return;
         }
-        
-        int initializedCount = 0;
-        int skippedCount = 0;
-        
+
+        var initializedCount = 0;
+        var skippedCount = 0;
+
         foreach (var obj in collisionLayer.Objects)
-        {
             try
             {
                 switch (obj)
@@ -50,54 +49,43 @@ public class MapColliderGenerator
                         break;
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex, "Failed to create collider for object on map '{MapName}'.", tilemap.Name);
                 skippedCount++;
             }
-        }
-        
+
         if (skippedCount > 0)
-        {
             Log.Warning("On map '{MapName}': {Initialized} initialized, {Skipped} skipped.",
                 tilemap.Name, initializedCount, skippedCount);
-        }
         else
-        {
             Log.Information("On map '{MapName}': all {Count} colliders initialized successfully.",
                 tilemap.Name, initializedCount);
-        }
     }
 
     private bool TryCreatePolygonCollider(World world, TilemapPolygonObject polygonObj)
     {
-        if (polygonObj.Points == null || polygonObj.Points.Length< MIN_POLYGON_VERTICES)
+        if (polygonObj.Points == null || polygonObj.Points.Length < MIN_POLYGON_VERTICES)
         {
             Log.Warning("Polygon object has too few vertices ({Count}), skipping.",
                 polygonObj.Points?.Length ?? 0);
             return false;
         }
-        
+
         var vertices = new Vertices(polygonObj.Points.Length);
-        foreach (var localPoint in polygonObj.Points)
-        {
-            vertices.Add(localPoint.ToAether());
-        }
-        
+        foreach (var localPoint in polygonObj.Points) vertices.Add(localPoint.ToWorld());
+
         // Aether Physics requires CCW polygon orientation
-        if (!vertices.IsCounterClockWise())
-        {
-            vertices.Reverse();
-        }
+        if (!vertices.IsCounterClockWise()) vertices.Reverse();
 
         var body = world.CreateBody(
             bodyType: BodyType.Static,
-            position: polygonObj.Position.ToAether());
-        
+            position: polygonObj.Position.ToWorld());
+
         CreatePolygonFixture(body, vertices);
         return true;
-
     }
+
     private void CreatePolygonFixture(Body body, Vertices vert)
     {
         if (vert.IsConvex())
@@ -108,9 +96,7 @@ public class MapColliderGenerator
         else
         {
             foreach (var convexShape in Triangulate.ConvexPartition(vert, TriangulationAlgorithm.Bayazit))
-            {
                 body.CreateFixture(new PolygonShape(convexShape, 1f));
-            }
         }
     }
 }

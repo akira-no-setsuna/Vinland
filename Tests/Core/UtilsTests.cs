@@ -1,6 +1,7 @@
 using Xunit;
 using FluentAssertions;
 using Game.Core;
+using Game.Core.Infrastructure;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 using Vector2Mono = Microsoft.Xna.Framework.Vector2;
 
@@ -23,7 +24,7 @@ namespace Tests.Unit
         public void ToAether_ConvertsMonoVectorToAether()
         {
             var mono = new Vector2Mono(1.2f, 4.8f);
-            var aether = mono.ToAether();
+            var aether = mono.ToWorld();
             aether.X.Should().Be(1.2f / PPM);
             aether.Y.Should().Be(4.8f / PPM);
         }

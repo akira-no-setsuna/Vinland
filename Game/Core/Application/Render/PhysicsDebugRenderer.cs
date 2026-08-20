@@ -3,26 +3,26 @@ using Game.Core.Infrastructure;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using nkast.Aether.Physics2D.Collision.Shapes;
+using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
 
 namespace Game.Core.Application.Render;
 
 /// <summary>
-/// Гладкая отрисовка физических тел (полигонов) для отладки.
-/// Все координаты физики (метры) автоматически масштабируются в пиксели через PPM.
+///     Гладкая отрисовка физических тел (полигонов) для отладки.
+///     Все координаты физики (метры) автоматически масштабируются в пиксели через PPM.
 /// </summary>
 public class PhysicsDebugRenderer
 {
-    private readonly SpriteBatch _spriteBatch;
-    private readonly Texture2D _pixel;
-
     // 🔑 КЛЮЧЕВАЯ КОНСТАНТА: должна совпадать с PPM в Game1 и MapColliderGenerator
     private const float PPM = PhysicsScale.PIXELS_PER_METER;
 
     // Более контрастные цвета для отладки
-    private static readonly Color StaticColor = new Color(0, 255, 0, 180);      // Ярко-зелёный (стены)
-    private static readonly Color DynamicColor = new Color(255, 50, 50, 220);   // Ярко-красный (игрок/враги)
-    private static readonly Color KinematicColor = new Color(50, 150, 255, 220);// Ярко-синий
+    private static readonly Color StaticColor = new(0, 255, 0, 180); // Ярко-зелёный (стены)
+    private static readonly Color DynamicColor = new(255, 50, 50, 220); // Ярко-красный (игрок/враги)
+    private static readonly Color KinematicColor = new(50, 150, 255, 220); // Ярко-синий
+    private readonly Texture2D _pixel;
+    private readonly SpriteBatch _spriteBatch;
 
     public PhysicsDebugRenderer(GraphicsDevice graphicsDevice)
     {
@@ -56,16 +56,9 @@ public class PhysicsDebugRenderer
             };
 
             foreach (var fixture in body.FixtureList)
-            {
                 if (fixture.Shape is PolygonShape poly)
-                {
                     DrawPolygon(body, poly.Vertices, color);
-                }
-                else if (fixture.Shape is CircleShape circle)
-                {
-                    DrawCircle(body, circle, color);
-                }
-            }
+                else if (fixture.Shape is CircleShape circle) DrawCircle(body, circle, color);
 
             // Рисуем маленький крестик в центре масс тела (в пикселях)
             DrawCross(body.Position.ToScreen(), 3, Color.Yellow);
@@ -74,11 +67,11 @@ public class PhysicsDebugRenderer
         _spriteBatch.End();
     }
 
-    private void DrawPolygon(Body body, nkast.Aether.Physics2D.Common.Vertices vertices, Color color)
+    private void DrawPolygon(Body body, Vertices vertices, Color color)
     {
-        for (int i = 0; i < vertices.Count; i++)
+        for (var i = 0; i < vertices.Count; i++)
         {
-            int next = (i + 1) % vertices.Count;
+            var next = (i + 1) % vertices.Count;
 
             // 🔑 Переводим локальные вершины в мировые координаты (метры) → пиксели
             var v1 = body.GetWorldPoint(vertices[i]).ToScreen();
@@ -93,28 +86,28 @@ public class PhysicsDebugRenderer
     {
         // 🔑 Центр и радиус переводим в пиксели
         var center = body.Position.ToScreen();
-        float radiusPixels = circle.Radius * PPM;
-        int segments = 16;
+        var radiusPixels = circle.Radius * PPM;
+        var segments = 16;
 
-        for (int i = 0; i < segments; i++)
+        for (var i = 0; i < segments; i++)
         {
-            float angle1 = (float)(i * 2.0 * Math.PI / segments);
-            float angle2 = (float)((i + 1) * 2.0 * Math.PI / segments);
+            var angle1 = (float)(i * 2.0 * Math.PI / segments);
+            var angle2 = (float)((i + 1) * 2.0 * Math.PI / segments);
 
             var v1 = center + new Vector2((float)Math.Cos(angle1) * radiusPixels,
-                                          (float)Math.Sin(angle1) * radiusPixels);
+                (float)Math.Sin(angle1) * radiusPixels);
             var v2 = center + new Vector2((float)Math.Cos(angle2) * radiusPixels,
-                                          (float)Math.Sin(angle2) * radiusPixels);
+                (float)Math.Sin(angle2) * radiusPixels);
             DrawLine(v1, v2, color, 1.0f);
         }
     }
 
     private void DrawLine(Vector2 start, Vector2 end, Color color, float thickness)
     {
-        float distance = Vector2.Distance(start, end);
+        var distance = Vector2.Distance(start, end);
         if (distance < 0.01f) return;
 
-        float angle = (float)Math.Atan2(end.Y - start.Y, end.X - start.X);
+        var angle = (float)Math.Atan2(end.Y - start.Y, end.X - start.X);
 
         _spriteBatch.Draw(
             _pixel,
@@ -134,7 +127,7 @@ public class PhysicsDebugRenderer
         DrawLine(centerPixels + new Vector2(-size, 0), centerPixels + new Vector2(size, 0), color, 1.5f);
         DrawLine(centerPixels + new Vector2(0, -size), centerPixels + new Vector2(0, size), color, 1.5f);
     }
-    
+
     public void Dispose()
     {
         _pixel?.Dispose();

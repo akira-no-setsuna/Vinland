@@ -18,7 +18,6 @@ public class KbmInputSource(ChannelWriter<InputCommand> writer) : InputSource(wr
             MoveDown: keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down),
             MoveLeft: keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left),
             MoveRight: keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right),
-            
             Attack: mouseState.LeftButton == ButtonState.Pressed
         );
     }

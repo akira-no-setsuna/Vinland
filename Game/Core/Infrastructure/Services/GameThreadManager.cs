@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,13 +11,19 @@ namespace Game.Core.Infrastructure.Services;
 public class GameThreadManager : IDisposable
 {
     private readonly CancellationTokenSource _cts = new();
-    
+    private Task? _dataThread;
+
+    private bool _disposed;
+
     private Task? _logicThread;
     private Task? _physicsThread;
-    private Task? _dataThread;
-    
-    private bool _disposed;
-    private int _started;   
+    private int _started;
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
     public void Start()
     {
@@ -26,15 +33,15 @@ public class GameThreadManager : IDisposable
         _logicThread = Task.Factory.StartNew(
             LogicLoop,
             _cts.Token,
-            TaskCreationOptions.LongRunning,    
-            TaskScheduler.Default).Unwrap();    
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default).Unwrap();
         _physicsThread = Task.Factory.StartNew(
             PhysicsLoop,
             _cts.Token,
             TaskCreationOptions.LongRunning,
-            TaskScheduler.Default).Unwrap();    
-        _dataThread = Task.Run(DataLoop);    
-        
+            TaskScheduler.Default).Unwrap();
+        _dataThread = Task.Run(DataLoop);
+
         Log.Debug("Threads started.");
     }
 
@@ -45,12 +52,9 @@ public class GameThreadManager : IDisposable
             Thread.CurrentThread.Name = "LogicThread";
             Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
             Thread.CurrentThread.IsBackground = true;
-        
+
             var token = _cts.Token;
-            while (!token.IsCancellationRequested)
-            {
-                await Task.Delay(16, token);
-            }
+            while (!token.IsCancellationRequested) await Task.Delay(16, token);
         }
         catch (OperationCanceledException)
         {
@@ -69,12 +73,9 @@ public class GameThreadManager : IDisposable
             Thread.CurrentThread.Name = "PhysicsThread";
             Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
             Thread.CurrentThread.IsBackground = true;
-        
+
             var token = _cts.Token;
-            while (!token.IsCancellationRequested)
-            {
-                await Task.Delay(16, token);
-            }
+            while (!token.IsCancellationRequested) await Task.Delay(16, token);
         }
         catch (OperationCanceledException)
         {
@@ -85,19 +86,16 @@ public class GameThreadManager : IDisposable
             Log.Fatal(ex, "Thread crashed");
         }
     }
-    
+
     private async Task DataLoop() // For now, it's just a placeholder
     {
         try
         {
             Thread.CurrentThread.Name = "DataThread";
             Thread.CurrentThread.IsBackground = true;
-        
+
             var token = _cts.Token;
-            while (!token.IsCancellationRequested)
-            {
-                await Task.Delay(16, token);
-            }
+            while (!token.IsCancellationRequested) await Task.Delay(16, token);
         }
         catch (OperationCanceledException)
         {
@@ -114,7 +112,7 @@ public class GameThreadManager : IDisposable
         _cts.Cancel();
         Log.Debug("Stop signal sent to threads.");
     }
-    
+
     public bool Join(TimeSpan timeout)
     {
         if (_logicThread == null) return true;
@@ -126,7 +124,7 @@ public class GameThreadManager : IDisposable
 
         if (tasks.Length == 0) return true;
 
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var stopwatch = Stopwatch.StartNew();
         const int sleepMs = 5;
 
         while (stopwatch.Elapsed < timeout)
@@ -134,13 +132,12 @@ public class GameThreadManager : IDisposable
             if (tasks.All(t => t.IsCompleted))
             {
                 foreach (var task in tasks)
-                {
                     if (task.IsFaulted)
                     {
                         Log.Error(task.Exception, "Background thread faulted unexpectedly.");
                         return false;
                     }
-                }
+
                 return true;
             }
 
@@ -149,13 +146,6 @@ public class GameThreadManager : IDisposable
 
         return false;
     }
-    
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-        
-    }
 
     public void Dispose(bool disposing)
     {
@@ -163,18 +153,17 @@ public class GameThreadManager : IDisposable
         if (disposing)
         {
             Stop();
-            
+
             if (!Join(TimeSpan.FromMilliseconds(100)))
-            {
                 Log.Warning(
                     "Thread shutdown timeout. Logic alive: {LogicAlive}, Physics alive: {PhysicsAlive}, Data alive: {DataAlive}",
                     _logicThread is { IsCompleted: false },
                     _physicsThread is { IsCompleted: false },
                     _dataThread is { IsCompleted: false });
-            }
             Log.Debug("Threads disposed.");
-            _cts.Dispose();  
+            _cts.Dispose();
         }
+
         _disposed = true;
     }
 }

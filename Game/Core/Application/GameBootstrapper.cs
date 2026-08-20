@@ -11,12 +11,12 @@ public static class GameBootstrapper
     public static IServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
-        
-        services.AddSingleton<Serilog.ILogger>(GameLogger.Configure(true));
+
+        services.AddSingleton(GameLogger.Configure(true));
         services.AddSingleton<ChannelHub>();
         services.AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
         services.AddSingleton<GameThreadManager>();
-        
+
         return services.BuildServiceProvider();
-    } 
+    }
 }

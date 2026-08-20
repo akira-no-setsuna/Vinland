@@ -12,17 +12,17 @@ namespace Game.Core.Logic;
 
 public class LogicManager(ChannelHub channelHub)
 {
-    // Entities
-    private readonly EntityFactory _factory = new EntityFactory(channelHub);
     private readonly Dictionary<Guid, LogicEntity> _entities = new();
-    
+
+    // Entities
+    private readonly EntityFactory _factory = new(channelHub);
+    private readonly PlayerController _playerController = new(channelHub);
+
     // Player
     private Guid _playerID;
-    private readonly PlayerController _playerController = new PlayerController(channelHub);
-    
+
     public void Initialize()
     {
-        
     }
 
     public void LoadContent()
@@ -31,16 +31,16 @@ public class LogicManager(ChannelHub channelHub)
         _entities.Add(entity.Id, entity);
         _playerID = FoundPlayer(_entities);
     }
+
     public void FixedUpdate()
     {
         PhysicReader();
         _playerController.FixedUpdate(_playerID, _entities[_playerID].Speed);
     }
-    
+
     private void PhysicReader()
     {
         while (channelHub.PhysicsToMain.Reader.TryRead(out var physicsCommand))
-        {
             switch (physicsCommand)
             {
                 case PositionUpdate entityPosition:
@@ -50,9 +50,8 @@ public class LogicManager(ChannelHub channelHub)
                     Log.Warning("Physics command {cmd} not complied", physicsCommand);
                     break;
             }
-        }
     }
-    
+
     // Update logic entities positions
     private void UpdatePositions(PositionUpdate entityPosition)
     {
@@ -61,9 +60,10 @@ public class LogicManager(ChannelHub channelHub)
             Log.Warning("EntityID: {id} logic not found", entityPosition.EntityID);
             return;
         }
+
         logicEntity.Position = entityPosition.Position;
     }
-    
+
     private Guid FoundPlayer(Dictionary<Guid, LogicEntity> entities)
     {
         var player = entities.Values.FirstOrDefault(e => e.Kind == EntityKind.Player);
@@ -72,8 +72,8 @@ public class LogicManager(ChannelHub channelHub)
             channelHub.LogicToMain.Writer.TryWrite(new SetPlayer(player.Id));
             return player.Id;
         }
+
         Log.Error("Player not found");
         return Guid.Empty;
     }
 }
-

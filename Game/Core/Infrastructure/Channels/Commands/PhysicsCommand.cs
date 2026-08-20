@@ -5,7 +5,6 @@ namespace Game.Core.Infrastructure.Channels.Commands;
 
 public abstract record PhysicsCommand
 {
-    
 }
 
 public sealed record PositionUpdate(

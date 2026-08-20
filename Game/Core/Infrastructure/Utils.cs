@@ -9,10 +9,14 @@ public static class Utils
     private const float PPM = PhysicsScale.PIXELS_PER_METER;
 
     public static Vector2 ToWorld(this Vector2 v)
-        => new Vector2(v.X / PPM, v.Y / PPM);
+    {
+        return new Vector2(v.X / PPM, v.Y / PPM);
+    }
 
     public static Vector2 ToScreen(this Vector2 v)
-        => new Vector2(v.X * PPM, v.Y * PPM);
+    {
+        return new Vector2(v.X * PPM, v.Y * PPM);
+    }
 }
 
 public static class PhysicsScale
@@ -31,9 +35,9 @@ public class LogicEntity(EntityData data)
 
     public EntityState State { get; set; } = EntityState.Idle;
     public float Speed { get; init; } = data.Speed;
-    
-    public bool IsDead { get; private set; } = false;
-    
+
+    public bool IsDead { get; private set; }
+
     public void TakeDamage(float damage)
     {
         Health -= damage;
@@ -41,12 +45,13 @@ public class LogicEntity(EntityData data)
     }
 }
 
-public class VisualEntity()
+public class VisualEntity
 {
     public required Guid Id { get; init; }
     public Vector2 Position { get; set; }
     public Texture2D Texture { get; set; }
 }
+
 public enum EntityKind
 {
     Player = 1,

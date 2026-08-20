@@ -23,8 +23,8 @@ public abstract class InputSource(ChannelWriter<InputCommand> writer)
     {
         KeyboardExtended.Update();
         if (!writer.TryWrite(ReadInput()))
-         Log.Warning("Failed to write input.");
+            Log.Warning("Failed to write input.");
     }
-    
+
     protected abstract InputCommand ReadInput();
 }

@@ -11,7 +11,7 @@ public static class GameLogger
 {
     private const string LOG_FILE_TEMPLATE = "logs/game-.log";
 
-    public static Serilog.ILogger Configure(bool isDebug)
+    public static ILogger Configure(bool isDebug)
     {
         var minimumLevel = isDebug ? LogEventLevel.Debug : LogEventLevel.Information;
 
@@ -24,23 +24,23 @@ public static class GameLogger
             .Enrich.WithThreadId()
             .Enrich.With<ThreadNameEnricher>()
             // .Enrich.With<GameTickEnricher>()
-            
+
             // Main Log
             .WriteTo.Async(a => a.File(
-                path: LOG_FILE_TEMPLATE,
+                LOG_FILE_TEMPLATE,
                 formatProvider: CultureInfo.InvariantCulture,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 7,
                 fileSizeLimitBytes: 10 * 1024 * 1024, // 10 MB
                 shared: false,
-                outputTemplate: "[{Timestamp:HH:mm:ss.fff} {Level:u3} Tick:{GameTick} [{ThreadName}]: {Message:lj}{NewLine}{Exception}"
+                outputTemplate:
+                "[{Timestamp:HH:mm:ss.fff} {Level:u3} Tick:{GameTick} [{ThreadName}]: {Message:lj}{NewLine}{Exception}"
             ))
-            
+
             // Error Log
             .WriteTo.Logger(lc => lc
                 .Filter.ByIncludingOnly(e => e.Level == LogEventLevel.Error || e.Level == LogEventLevel.Fatal)
                 .WriteTo.File("logs/errors-.txt", rollingInterval: RollingInterval.Day))
-
             .CreateLogger();
 
         // Global logger
@@ -63,5 +63,3 @@ public class ThreadNameEnricher : ILogEventEnricher
         logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("ThreadName", name));
     }
 }
-
-

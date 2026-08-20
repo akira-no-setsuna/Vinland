@@ -10,37 +10,35 @@ namespace Game.Core.Physics;
 
 public class PhysicsManager(ChannelHub channelHub)
 {
-    private World _physicWorld;
     private readonly Dictionary<Guid, Body> _entities = new();
     private MapColliderGenerator _mapColliderGenerator;
+    private World _physicWorld;
 
     public void Initialize()
-    { 
+    {
         _physicWorld = new World(Vector2.Zero);
         _mapColliderGenerator = new MapColliderGenerator();
-
     }
 
     public void LoadContent()
     {
-
     }
+
     public void FixedUpdate(float deltaTime)
     {
         LogicReader();
         MainReader();
         _physicWorld.Step(deltaTime);
         UpdatePositions();
-        
-        #if DEBUG
+
+#if DEBUG
         CollidersRender();
-        #endif
+#endif
     }
 
     private void LogicReader()
     {
         while (channelHub.LogicToPhysic.Reader.TryRead(out var logicCommand))
-        {
             switch (logicCommand)
             {
                 case BodySpawn command:
@@ -53,13 +51,11 @@ public class PhysicsManager(ChannelHub channelHub)
                     Log.Warning("Logic command {cmd} not complied", logicCommand);
                     break;
             }
-        }
     }
-    
+
     private void MainReader()
     {
         while (channelHub.MainToPhysic.Reader.TryRead(out var mainCommand))
-        {
             switch (mainCommand)
             {
                 case GenerateMapColliders command:
@@ -69,7 +65,6 @@ public class PhysicsManager(ChannelHub channelHub)
                     Log.Warning("Main command {cmd} not complied", mainCommand);
                     break;
             }
-        }
     }
 
     private void CollidersRender()
@@ -87,32 +82,29 @@ public class PhysicsManager(ChannelHub channelHub)
     {
         var body = _physicWorld.CreateBody();
         body.BodyType = BodyType.Dynamic;
-     
-        
+
+
         var shape = new CircleShape
-            (
-                spawn.EntityData.Radius,
-                spawn.EntityData.Density
-            );
-        
+        (
+            spawn.EntityData.Radius,
+            spawn.EntityData.Density
+        );
+
         body.CreateFixture(shape);
         body.Position = spawn.Position;
-        
+
         _entities.Add(spawn.EntityID, body);
         Log.Information("SpawnEntityBody: ID = {id}, Pos = {pos}",
             spawn.EntityID, spawn.Position);
     }
-    
+
     private void UpdatePositions()
     {
         foreach (var entity in _entities)
-        {
             if (entity.Value.BodyType == BodyType.Dynamic)
             {
                 channelHub.PhysicsToMain.Writer.TryWrite(new PositionUpdate(entity.Key, entity.Value.Position));
                 channelHub.PhysicsToLogic.Writer.TryWrite(new PositionUpdate(entity.Key, entity.Value.Position));
-
             }
-        }
     }
 }

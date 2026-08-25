@@ -1,0 +1,10 @@
+[
+  {
+    "Species": "human",
+    "MaxHP": 100.0,
+    "Speed": 5.0,
+    "Radius": 1.0,
+    "Density": 1.0,
+    "TextureKey": "textures/Player"
+  }
+]

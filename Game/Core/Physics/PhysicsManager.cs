@@ -2,29 +2,24 @@ using System;
 using System.Collections.Generic;
 using Game.Core.Infrastructure.Channels;
 using Game.Core.Infrastructure.Channels.Commands;
+using Game.Core.Infrastructure.Services.Threads;
 using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Dynamics;
 using Serilog;
 
 namespace Game.Core.Physics;
 
-public class PhysicsManager(ChannelHub channelHub)
+public class PhysicsManager(ChannelHub channelHub) : BaseThread
 {
     private readonly Dictionary<Guid, Body> _entities = new();
-    private MapColliderGenerator _mapColliderGenerator;
-    private World _physicWorld;
+    private readonly MapColliderGenerator _mapColliderGenerator = new() ;
+    private readonly World _physicWorld = new (Vector2.Zero);
 
-    public void Initialize()
-    {
-        _physicWorld = new World(Vector2.Zero);
-        _mapColliderGenerator = new MapColliderGenerator();
-    }
-
-    public void LoadContent()
+    protected override void Prepare()
     {
     }
 
-    public void FixedUpdate(float deltaTime)
+    protected override void FixedUpdate(float deltaTime)
     {
         LogicReader();
         MainReader();

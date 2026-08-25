@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using Game.Core.Application.Input;
 using Game.Core.Application.Render;
+using Game.Core.Data;
 using Game.Core.Infrastructure;
 using Game.Core.Infrastructure.Channels;
 using Game.Core.Infrastructure.Channels.Commands;
-using Game.Core.Infrastructure.Services;
+
+using Game.Core.Infrastructure.Services.Threads;
 using Game.Core.Logic;
 using Game.Core.Physics;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,12 +23,10 @@ namespace Game.Core.Application;
 
 public class GameManager : Microsoft.Xna.Framework.Game
 {
-    // Fixed Update
-    private const float FIXED_DELTA_TIME = 1f / 60f;
-
     // Spawn entity texture
+    private readonly Dictionary<string, Texture2D> _textures = new();
     private readonly Dictionary<Guid, VisualEntity> _entities = new();
-    private float _accumulator;
+    
     private OrthographicCamera _camera;
     private ChannelHub _channelHub;
 
@@ -37,8 +37,9 @@ public class GameManager : Microsoft.Xna.Framework.Game
     private InputSource _inputSource;
 
     // Managers
-    private LogicManager _logic;
-    private PhysicsManager _physics;
+    private BaseThread _logic;
+    private BaseThread _physics;
+    private BaseThread _data;
 
     private PhysicsDebugRenderer _physicsDebug;
 
@@ -65,16 +66,17 @@ public class GameManager : Microsoft.Xna.Framework.Game
         _services = GameBootstrapper.ConfigureServices();
         _channelHub = _services.GetRequiredService<ChannelHub>();
         _threadManager = _services.GetRequiredService<GameThreadManager>();
-        _threadManager.Start();
-
-        Log.Information("=== Initializing game ===");
-
-        // Managers
+        
         _logic = new LogicManager(_channelHub);
         _physics = new PhysicsManager(_channelHub);
+        _data = new DataManager(_channelHub);
+        
+        _threadManager.Start();
+        _logic.Start();
+        _physics.Start();
+        _data.Start();
 
-        _logic.Initialize();
-        _physics.Initialize();
+        Log.Information("=== Initializing game ===");
 
         // Camera
         _camera = new OrthographicCamera(GraphicsDevice)
@@ -91,7 +93,7 @@ public class GameManager : Microsoft.Xna.Framework.Game
 
         // Tilemap
         _tilemapRenderer = new TilemapRenderer(GraphicsDevice);
-
+        
         _physicsDebug = new PhysicsDebugRenderer(GraphicsDevice);
 
         base.Initialize();
@@ -101,44 +103,30 @@ public class GameManager : Microsoft.Xna.Framework.Game
     {
         Log.Information("=== Loading content ===");
 
-
-        // Managers
-        _logic.LoadContent();
-        _physics.LoadContent();
-
-        LogicReader();
-        PhysicsReader();
-
         // Tilemap
         _tilemap = Content.Load<Tilemap>("maps/rooms/room_01");
         _tilemapRenderer.LoadTilemap(_tilemap);
         _channelHub.MainToPhysic.Writer.TryWrite(new GenerateMapColliders(_tilemap));
     }
 
-
-    private void FixedUpdate()
-    {
-        _logic.FixedUpdate();
-        _physics.FixedUpdate(FIXED_DELTA_TIME);
-
-        LogicReader();
-        PhysicsReader();
-    }
-
     protected override void Update(GameTime gameTime)
     {
+        var time = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        
         // Input
         // TODO: Problem: Loss of quick keystrokes
         // TODO: Make instant reading of input for visual
         _inputSource.Update();
 
-        _accumulator += (float)gameTime.ElapsedGameTime.TotalSeconds;
-        while (_accumulator >= FIXED_DELTA_TIME)
-        {
-            FixedUpdate();
-            _accumulator -= FIXED_DELTA_TIME;
-        }
-
+        _logic.Update(time);
+        _physics.Update(time);
+        _data.Update(time);
+        
+        DataReader();
+        LogicReader();
+        PhysicsReader();
+        
+        
         // Camera
         if (_playerID != Guid.Empty && _entities.TryGetValue(_playerID, out var player))
             _camera.LookAt(player.Position.ToScreen());
@@ -204,7 +192,27 @@ public class GameManager : Microsoft.Xna.Framework.Game
                     break;
             }
     }
-
+    
+    private void DataReader()
+    {
+        while (_channelHub.DataToMain.Reader.TryRead(out var dataCommand))
+            switch (dataCommand)
+            {
+                case TextureLoad command:
+                    LoadingTexture(command);
+                    break;
+                default:
+                    Log.Warning("Data command {cmd} not complied", dataCommand);
+                    break;
+            }
+    }
+    
+    private void LoadingTexture(TextureLoad textureLoad)
+    {
+        if (textureLoad.TextureKey == null) Log.Warning("TextureLoad texture null");
+        var texture = Content.Load<Texture2D>(textureLoad.TextureKey);
+        _textures.Add(textureLoad.TextureKey, texture);
+    }
     // Update visual entities positions
     private void UpdatePositions(PositionUpdate entityPosition)
     {
@@ -222,13 +230,8 @@ public class GameManager : Microsoft.Xna.Framework.Game
 
     private void SpawnEntityTexture(TextureSpawn spawn)
     {
-        var texture = Content.Load<Texture2D>(spawn.EntityData.TextureKey);
-        if (texture == null)
-        {
-            Log.Information("SpawnEntityTexture: ID = {id}, Pos = {pos}, TextureKey = {key}",
-                spawn.EntityID, spawn.Position, spawn.EntityData.TextureKey);
-            return;
-        }
+        if (_textures.TryGetValue(spawn.EntityData.TextureKey, out var texture)) 
+            Log.Warning("Texture: {textureKey} not found", spawn.EntityData.TextureKey);
 
         var entity = new VisualEntity
         {

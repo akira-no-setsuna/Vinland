@@ -4,13 +4,14 @@ using System.Linq;
 using Game.Core.Infrastructure;
 using Game.Core.Infrastructure.Channels;
 using Game.Core.Infrastructure.Channels.Commands;
+using Game.Core.Infrastructure.Services.Threads;
 using Game.Core.Logic.Entities;
 using Game.Core.Logic.Entities.Data;
 using Serilog;
 
 namespace Game.Core.Logic;
 
-public class LogicManager(ChannelHub channelHub)
+public class LogicManager(ChannelHub channelHub) : BaseThread
 {
     private readonly Dictionary<Guid, LogicEntity> _entities = new();
 
@@ -21,21 +22,22 @@ public class LogicManager(ChannelHub channelHub)
     // Player
     private Guid _playerID;
 
-    public void Initialize()
+    protected override void Prepare()
     {
-    }
-
-    public void LoadContent()
-    {
-        var entity = _factory.CreateEntity(Vector2.Zero, new HumanData(), EntityKind.Player);
-        _entities.Add(entity.Id, entity);
+        EntitiesSpawn();
         _playerID = FoundPlayer(_entities);
     }
 
-    public void FixedUpdate()
+    protected override void FixedUpdate(float deltaTime)
     {
         PhysicReader();
         _playerController.FixedUpdate(_playerID, _entities[_playerID].Speed);
+    }
+
+    private void EntitiesSpawn()
+    {
+        var entity = _factory.CreateEntity(Vector2.Zero, new HumanData(), EntityKind.Player);
+        _entities.Add(entity.Id, entity);
     }
 
     private void PhysicReader()

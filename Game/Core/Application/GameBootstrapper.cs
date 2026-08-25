@@ -1,6 +1,7 @@
 using System;
 using Game.Core.Infrastructure.Channels;
 using Game.Core.Infrastructure.Services;
+using Game.Core.Infrastructure.Services.Threads;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
 

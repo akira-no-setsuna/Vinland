@@ -45,9 +45,6 @@
         <PackageReference Include="Stateless" Version="5.20.1" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="logs\" />
-    </ItemGroup>
-    <ItemGroup>
         <None Update="Content/Configs/*.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

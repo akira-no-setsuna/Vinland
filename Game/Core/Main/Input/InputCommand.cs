@@ -15,7 +15,7 @@ public readonly record struct InputSnapshot(
                 (MoveRight ? 1f : 0f) - (MoveLeft ? 1f : 0f),
                 (MoveDown ? 1f : 0f) - (MoveUp ? 1f : 0f)
             );
-            if(dir.LengthSquared() > 0) dir.Normalize();
+            if (dir.LengthSquared() > 0) dir.Normalize();
             return dir;
         }
     }
@@ -30,7 +30,7 @@ public enum InputAction : byte
 {
     Attack = 1,
     Dodge = 2,
-    Pause = 3,
+    Pause = 3
 }
 
 public enum InputEventType : byte

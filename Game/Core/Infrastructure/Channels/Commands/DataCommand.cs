@@ -16,4 +16,3 @@ public sealed record EntityConfigs(
 public sealed record DataLoaded(
     bool Success
 ) : DataCommand;
-

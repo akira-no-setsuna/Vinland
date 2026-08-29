@@ -12,8 +12,10 @@ namespace Game.Core.Physics;
 public class PhysicsManager(ChannelHub channelHub) : BaseThread
 {
     private readonly Dictionary<Guid, Body> _entities = new();
-    private readonly MapColliderGenerator _mapColliderGenerator = new() ;
-    private readonly World _physicWorld = new (Vector2.Zero);
+    private readonly MapColliderGenerator _mapColliderGenerator = new();
+    private readonly World _physicWorld = new(Vector2.Zero);
+
+    private readonly List<PositionSnapshot> _positionBuffer = new();
 
     protected override void FixedUpdate(long tick, float deltaTime)
     {
@@ -88,8 +90,6 @@ public class PhysicsManager(ChannelHub channelHub) : BaseThread
         Log.Information("SpawnEntityBody: ID = {id}, Pos = {pos}",
             spawn.EntityID, spawn.Position);
     }
-
-    private readonly List<PositionSnapshot> _positionBuffer = new();
 
     private void UpdatePositions()
     {

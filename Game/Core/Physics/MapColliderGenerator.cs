@@ -35,7 +35,6 @@ public class MapColliderGenerator
         var skippedCount = 0;
 
         foreach (var obj in collisionLayer.Objects)
-        {
             try
             {
                 var created = obj switch
@@ -58,7 +57,6 @@ public class MapColliderGenerator
                     obj.Name, tilemap.Name);
                 skippedCount++;
             }
-        }
 
         if (skippedCount > 0)
             Log.Warning("On map '{MapName}': {Initialized} initialized, {Skipped} skipped.",
@@ -199,13 +197,9 @@ public class MapColliderGenerator
     private void CreatePolygonFixture(Body body, Vertices vertices)
     {
         if (vertices.IsConvex())
-        {
             body.CreateFixture(new PolygonShape(vertices, DENSITY));
-        }
         else
-        {
             foreach (var convexPart in Triangulate.ConvexPartition(vertices, TriangulationAlgorithm.Bayazit))
                 body.CreateFixture(new PolygonShape(convexPart, DENSITY));
-        }
     }
 }

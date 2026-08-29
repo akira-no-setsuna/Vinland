@@ -14,7 +14,7 @@ public static class GameLogger
     public static ILogger Configure(bool isDebug)
     {
         var minimumLevel = isDebug ? LogEventLevel.Debug : LogEventLevel.Information;
-        
+
         var logger = new LoggerConfiguration()
             .MinimumLevel.Is(minimumLevel)
             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
@@ -22,7 +22,7 @@ public static class GameLogger
 
             // Enrichers
             .Enrich.WithThreadId()
-            .Enrich.FromLogContext() 
+            .Enrich.FromLogContext()
             .Enrich.With<ThreadNameEnricher>()
             // .Enrich.With<GameTickEnricher>()
 

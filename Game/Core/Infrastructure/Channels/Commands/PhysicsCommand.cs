@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using MonoGame.Extended.Tilemaps;
 using nkast.Aether.Physics2D.Dynamics;
 
 namespace Game.Core.Infrastructure.Channels.Commands;

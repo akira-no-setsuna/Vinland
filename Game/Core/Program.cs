@@ -1,18 +1,12 @@
-﻿using Game;
-using Game.Core;
-using Game.Core.Application;
-using Game.Core.Main;
+﻿using Game.Core.Main;
 
+namespace Game.Core;
 
-namespace Game.Core
+internal static class Program
 {
-    static class Program
+    private static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            using var game = new GameManager();
-            game.Run();
-        }
+        using var game = new GameManager();
+        game.Run();
     }
 }
-

@@ -20,14 +20,14 @@ public static class GameBootstrapper
         services.AddSingleton<ChannelHub>();
         services.AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
         services.AddSingleton<GameThreadManager>();
-        
+
         services.AddSingleton(sp => new LogicManager
             (sp.GetRequiredService<ChannelHub>()));
         services.AddSingleton(sp => new PhysicsManager
             (sp.GetRequiredService<ChannelHub>()));
         services.AddSingleton(sp => new DataManager
             (sp.GetRequiredService<ChannelHub>()));
-        
+
         services.AddSingleton<GameClock>();
         services.AddSingleton(GameLogger.Configure(true));
         services.AddSingleton<InputSource>(sp => new KbmInputSource

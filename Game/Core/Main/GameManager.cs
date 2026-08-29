@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
-using Game.Core.Application.Input;
 using Game.Core.Application.Render;
 using Game.Core.Data;
 using Game.Core.Infrastructure;
 using Game.Core.Infrastructure.Channels;
 using Game.Core.Infrastructure.Channels.Commands;
-
+using Game.Core.Infrastructure.Services;
 using Game.Core.Infrastructure.Services.Threads;
 using Game.Core.Logic;
+using Game.Core.Main.Input;
 using Game.Core.Physics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
@@ -19,18 +19,24 @@ using MonoGame.Extended.Tilemaps.Rendering;
 using nkast.Aether.Physics2D.Dynamics;
 using Serilog;
 
-namespace Game.Core.Application;
+namespace Game.Core.Main;
 
 public class GameManager : Microsoft.Xna.Framework.Game
 {
+    private readonly Dictionary<Guid, VisualEntity> _entities = new();
+
     // Spawn entity texture
     private readonly Dictionary<string, Texture2D> _textures = new();
-    private readonly Dictionary<Guid, VisualEntity> _entities = new();
-    
+
     private OrthographicCamera _camera;
     private ChannelHub _channelHub;
+    private DataManager _data;
 
     private BodyCollection _debugBodyList;
+
+    // Game Clock
+    private GameClock _gameClock;
+
     private GraphicsDeviceManager _graphics;
 
     // Input
@@ -39,7 +45,6 @@ public class GameManager : Microsoft.Xna.Framework.Game
     // Managers
     private BaseThread _logic;
     private BaseThread _physics;
-    private BaseThread _data;
 
     private PhysicsDebugRenderer _physicsDebug;
 
@@ -49,6 +54,7 @@ public class GameManager : Microsoft.Xna.Framework.Game
     private IServiceProvider _services;
     private SpriteBatch _spriteBatch;
     private GameThreadManager _threadManager;
+
 
     private Tilemap _tilemap;
     private TilemapRenderer _tilemapRenderer;
@@ -64,19 +70,25 @@ public class GameManager : Microsoft.Xna.Framework.Game
     {
         // DI
         _services = GameBootstrapper.ConfigureServices();
+
+        _logic = _services.GetRequiredService<LogicManager>();
+        _physics = _services.GetRequiredService<PhysicsManager>();
+        _data = _services.GetRequiredService<DataManager>();
+
         _channelHub = _services.GetRequiredService<ChannelHub>();
         _threadManager = _services.GetRequiredService<GameThreadManager>();
-        
-        _logic = new LogicManager(_channelHub);
-        _physics = new PhysicsManager(_channelHub);
-        _data = new DataManager(_channelHub);
-        
+
+
         _threadManager.Start();
+
+        _data.Start();
         _logic.Start();
         _physics.Start();
-        _data.Start();
+
 
         Log.Information("=== Initializing game ===");
+
+        _gameClock = new GameClock();
 
         // Camera
         _camera = new OrthographicCamera(GraphicsDevice)
@@ -86,15 +98,15 @@ public class GameManager : Microsoft.Xna.Framework.Game
         };
 
         // Input
-        _inputSource = new KbmInputSource(_channelHub.InputToLogic.Writer);
+        _inputSource = new KbmInputSource(_channelHub);
 
         // Draw
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // Tilemap
         _tilemapRenderer = new TilemapRenderer(GraphicsDevice);
-        
-        _physicsDebug = new PhysicsDebugRenderer(GraphicsDevice);
+
+        _physicsDebug = new PhysicsDebugRenderer(_spriteBatch, GraphicsDevice);
 
         base.Initialize();
     }
@@ -106,27 +118,26 @@ public class GameManager : Microsoft.Xna.Framework.Game
         // Tilemap
         _tilemap = Content.Load<Tilemap>("maps/rooms/room_01");
         _tilemapRenderer.LoadTilemap(_tilemap);
-        _channelHub.MainToPhysic.Writer.TryWrite(new GenerateMapColliders(_tilemap));
+        _channelHub.MainToPhysic.Writer.TryWrite(new GenerateMapColliders(_gameClock.CurrentTick, _tilemap));
     }
 
     protected override void Update(GameTime gameTime)
     {
-        var time = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        
         // Input
         // TODO: Problem: Loss of quick keystrokes
         // TODO: Make instant reading of input for visual
         _inputSource.Update();
 
-        _logic.Update(time);
-        _physics.Update(time);
-        _data.Update(time);
-        
+        _gameClock.Tick((float)gameTime.ElapsedGameTime.TotalSeconds, (tick, deltaTime) =>
+        {
+            _logic.ManualUpdate(tick, deltaTime);
+            _physics.ManualUpdate(tick, deltaTime);
+        });
+
         DataReader();
         LogicReader();
         PhysicsReader();
-        
-        
+
         // Camera
         if (_playerID != Guid.Empty && _entities.TryGetValue(_playerID, out var player))
             _camera.LookAt(player.Position.ToScreen());
@@ -144,9 +155,8 @@ public class GameManager : Microsoft.Xna.Framework.Game
         );
 
         _tilemapRenderer.Draw(_camera);
-
-
         DrawEntitySprite();
+
 #if DEBUG
         _physicsDebug.Draw(_debugBodyList, _camera.GetViewMatrix());
 #endif
@@ -157,6 +167,19 @@ public class GameManager : Microsoft.Xna.Framework.Game
     {
         _physicsDebug.Dispose();
         base.UnloadContent();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _threadManager?.Stop();
+            _threadManager?.Join(TimeSpan.FromMilliseconds(100));
+
+            (_services as IDisposable)?.Dispose();
+        }
+
+        base.Dispose(disposing);
     }
 
     private void LogicReader()
@@ -181,7 +204,7 @@ public class GameManager : Microsoft.Xna.Framework.Game
         while (_channelHub.PhysicsToMain.Reader.TryRead(out var physicsCommand))
             switch (physicsCommand)
             {
-                case PositionUpdate command:
+                case PositionsUpdate command:
                     UpdatePositions(command);
                     break;
                 case BodyListRender command:
@@ -192,7 +215,7 @@ public class GameManager : Microsoft.Xna.Framework.Game
                     break;
             }
     }
-    
+
     private void DataReader()
     {
         while (_channelHub.DataToMain.Reader.TryRead(out var dataCommand))
@@ -206,19 +229,32 @@ public class GameManager : Microsoft.Xna.Framework.Game
                     break;
             }
     }
-    
+
     private void LoadingTexture(TextureLoad textureLoad)
     {
-        if (textureLoad.TextureKey == null) Log.Warning("TextureLoad texture null");
+        if (textureLoad.TextureKey == null)
+        {
+            Log.Warning("TextureLoad texture null");
+            return;
+        }
+
+        if (_textures.ContainsKey(textureLoad.TextureKey))
+        {
+            Log.Debug("Texture already loaded: {key}", textureLoad.TextureKey);
+            return;
+        }
+
         var texture = Content.Load<Texture2D>(textureLoad.TextureKey);
         _textures.Add(textureLoad.TextureKey, texture);
     }
+
     // Update visual entities positions
-    private void UpdatePositions(PositionUpdate entityPosition)
+    private void UpdatePositions(PositionsUpdate positionBuffer)
     {
-        if (_entities.TryGetValue(entityPosition.EntityID, out var visualEntity))
-            visualEntity.Position = entityPosition.Position;
-        else Log.Warning("EntityID: {id} visual not found", entityPosition.EntityID);
+        foreach (var position in positionBuffer.Positions)
+            if (_entities.TryGetValue(position.EntityID, out var visualEntity))
+                visualEntity.Position = position.Position;
+            else Log.Warning("EntityID: {id} visual not found", position.EntityID);
     }
 
     // Draw entities
@@ -230,8 +266,11 @@ public class GameManager : Microsoft.Xna.Framework.Game
 
     private void SpawnEntityTexture(TextureSpawn spawn)
     {
-        if (_textures.TryGetValue(spawn.EntityData.TextureKey, out var texture)) 
-            Log.Warning("Texture: {textureKey} not found", spawn.EntityData.TextureKey);
+        if (!_textures.TryGetValue(spawn.TextureKey, out var texture))
+        {
+            Log.Warning("Texture: {textureKey} not found", spawn.TextureKey);
+            return;
+        }
 
         var entity = new VisualEntity
         {
@@ -243,6 +282,6 @@ public class GameManager : Microsoft.Xna.Framework.Game
         _entities.Add(entity.Id, entity);
 
         Log.Information("SpawnEntityTexture: ID = {id}, Pos = {pos}, TextureKey = {key}",
-            spawn.EntityID, spawn.Position, spawn.EntityData.TextureKey);
+            spawn.EntityID, spawn.Position, spawn.TextureKey);
     }
 }

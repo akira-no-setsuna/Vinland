@@ -1,35 +1,33 @@
 using System;
-using Game.Core.Logic.Entities.Data;
 
 namespace Game.Core.Infrastructure.Channels.Commands;
 
-public abstract record LogicToMainCommand
-{
-    // public required long Tick { get; init; }
-}
+public abstract record LogicToMainCommand(long Tick);
 
 public sealed record TextureSpawn(
+    long Tick,
     Guid EntityID,
     Vector2 Position,
-    EntityData EntityData
-) : LogicToMainCommand;
+    string TextureKey
+) : LogicToMainCommand(Tick);
 
 public sealed record SetPlayer(
+    long Tick,
     Guid EntityID
-) : LogicToMainCommand;
+) : LogicToMainCommand(Tick);
 
-public abstract record LogicToPhysicCommand
-{
-    // public required long Tick { get; init; }
-}
+public abstract record LogicToPhysicCommand(long Tick);
 
 public sealed record BodySpawn(
+    long Tick,
     Guid EntityID,
     Vector2 Position,
-    EntityData EntityData
-) : LogicToPhysicCommand;
+    float Radius,
+    float Density
+) : LogicToPhysicCommand(Tick);
 
 public sealed record SetVelocity(
+    long Tick,
     Guid EntityID,
     Vector2 Velocity
-) : LogicToPhysicCommand;
+) : LogicToPhysicCommand(Tick);

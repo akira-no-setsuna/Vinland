@@ -12,14 +12,12 @@ namespace Game.Core.Physics;
 public class PhysicsManager(ChannelHub channelHub) : BaseThread
 {
     private readonly Dictionary<Guid, Body> _entities = new();
-    private readonly MapColliderGenerator _mapColliderGenerator = new() ;
-    private readonly World _physicWorld = new (Vector2.Zero);
+    private readonly MapColliderGenerator _mapColliderGenerator = new();
+    private readonly World _physicWorld = new(Vector2.Zero);
 
-    protected override void Prepare()
-    {
-    }
+    private readonly List<PositionSnapshot> _positionBuffer = new();
 
-    protected override void FixedUpdate(float deltaTime)
+    protected override void FixedUpdate(long tick, float deltaTime)
     {
         LogicReader();
         MainReader();
@@ -64,7 +62,7 @@ public class PhysicsManager(ChannelHub channelHub) : BaseThread
 
     private void CollidersRender()
     {
-        channelHub.PhysicsToMain.Writer.TryWrite(new BodyListRender(_physicWorld.BodyList));
+        channelHub.PhysicsToMain.Writer.TryWrite(new BodyListRender(CurrentTick, _physicWorld.BodyList));
     }
 
     private void SetEntityVelocity(SetVelocity setVelocity)
@@ -81,8 +79,8 @@ public class PhysicsManager(ChannelHub channelHub) : BaseThread
 
         var shape = new CircleShape
         (
-            spawn.EntityData.Radius,
-            spawn.EntityData.Density
+            spawn.Radius,
+            spawn.Density
         );
 
         body.CreateFixture(shape);
@@ -95,11 +93,29 @@ public class PhysicsManager(ChannelHub channelHub) : BaseThread
 
     private void UpdatePositions()
     {
+        _positionBuffer.Clear();
+
+        if (_entities.Count > 0)
+            _positionBuffer.EnsureCapacity(_entities.Count);
+
         foreach (var entity in _entities)
-            if (entity.Value.BodyType == BodyType.Dynamic)
-            {
-                channelHub.PhysicsToMain.Writer.TryWrite(new PositionUpdate(entity.Key, entity.Value.Position));
-                channelHub.PhysicsToLogic.Writer.TryWrite(new PositionUpdate(entity.Key, entity.Value.Position));
-            }
+        {
+            if (entity.Value.BodyType != BodyType.Dynamic)
+                continue;
+
+            _positionBuffer.Add(
+                new PositionSnapshot(
+                    entity.Key,
+                    entity.Value.Position
+                )
+            );
+        }
+
+        if (_positionBuffer.Count == 0)
+            return;
+
+        var positionSnapshots = _positionBuffer.ToArray();
+        channelHub.PhysicsToMain.Writer.TryWrite(new PositionsUpdate(CurrentTick, positionSnapshots));
+        channelHub.PhysicsToLogic.Writer.TryWrite(new PositionsUpdate(CurrentTick, positionSnapshots));
     }
 }

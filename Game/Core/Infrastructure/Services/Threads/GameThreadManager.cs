@@ -49,9 +49,9 @@ public class GameThreadManager : IDisposable
     {
         try
         {
-            System.Threading.Thread.CurrentThread.Name = "LogicThread";
-            System.Threading.Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
-            System.Threading.Thread.CurrentThread.IsBackground = true;
+            Thread.CurrentThread.Name = "LogicThread";
+            Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
+            Thread.CurrentThread.IsBackground = true;
 
             var token = _cts.Token;
             while (!token.IsCancellationRequested) await Task.Delay(16, token);
@@ -70,9 +70,9 @@ public class GameThreadManager : IDisposable
     {
         try
         {
-            System.Threading.Thread.CurrentThread.Name = "PhysicsThread";
-            System.Threading.Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
-            System.Threading.Thread.CurrentThread.IsBackground = true;
+            Thread.CurrentThread.Name = "PhysicsThread";
+            Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
+            Thread.CurrentThread.IsBackground = true;
 
             var token = _cts.Token;
             while (!token.IsCancellationRequested) await Task.Delay(16, token);
@@ -91,8 +91,8 @@ public class GameThreadManager : IDisposable
     {
         try
         {
-            System.Threading.Thread.CurrentThread.Name = "DataThread";
-            System.Threading.Thread.CurrentThread.IsBackground = true;
+            Thread.CurrentThread.Name = "DataThread";
+            Thread.CurrentThread.IsBackground = true;
 
             var token = _cts.Token;
             while (!token.IsCancellationRequested) await Task.Delay(16, token);
@@ -141,7 +141,7 @@ public class GameThreadManager : IDisposable
                 return true;
             }
 
-            System.Threading.Thread.Sleep(sleepMs);
+            Thread.Sleep(sleepMs);
         }
 
         return false;

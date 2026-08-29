@@ -1,17 +1,23 @@
 using System;
+using System.Collections.Generic;
 using nkast.Aether.Physics2D.Dynamics;
 
 namespace Game.Core.Infrastructure.Channels.Commands;
 
-public abstract record PhysicsCommand
-{
-}
+public abstract record PhysicsCommand(long Tick);
 
-public sealed record PositionUpdate(
+public sealed record PositionsUpdate(
+    long Tick,
+    IReadOnlyList<PositionSnapshot> Positions
+) : PhysicsCommand(Tick);
+
+// Оставляем короткий вид для record struct, так как у него нет наследования
+public readonly record struct PositionSnapshot(
     Guid EntityID,
     Vector2 Position
-) : PhysicsCommand;
+);
 
 public sealed record BodyListRender(
+    long Tick,
     BodyCollection BodyList
-) : PhysicsCommand;
+) : PhysicsCommand(Tick);

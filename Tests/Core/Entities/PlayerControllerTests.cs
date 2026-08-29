@@ -3,6 +3,7 @@ using FluentAssertions;
 using Game.Core.Application.Input;
 using Game.Core.Entities;
 using Game.Core.Logic.Entities;
+using Game.Core.Main.Input;
 using nkast.Aether.Physics2D.Dynamics;
 using Vector2Aether = nkast.Aether.Physics2D.Common.Vector2;
 
@@ -19,7 +20,7 @@ namespace Tests.Integration
             var body = world.CreateBody();
             body.BodyType = BodyType.Dynamic;
             var controller = new PlayerController(body);
-            var input = new InputCommand(false, false, true, false, false);
+            var input = new InputSnapshot(false, false, true, false, false);
             controller.FixedUpdate(input);
             body.LinearVelocity.Y.Should().Be(-SPEED);
             body.LinearVelocity.X.Should().Be(0);
@@ -32,7 +33,7 @@ namespace Tests.Integration
             var body = world.CreateBody();
             body.BodyType = BodyType.Dynamic;
             var controller = new PlayerController(body);
-            var input = new InputCommand(false, false, false, true, false);
+            var input = new InputSnapshot(false, false, false, true, false);
             controller.FixedUpdate(input);
             body.LinearVelocity.Y.Should().Be(SPEED);
         }
@@ -44,7 +45,7 @@ namespace Tests.Integration
             var body = world.CreateBody();
             body.BodyType = BodyType.Dynamic;
             var controller = new PlayerController(body);
-            var input = new InputCommand(true, false, false, false, false);
+            var input = new InputSnapshot(true, false, false, false, false);
             controller.FixedUpdate(input);
             body.LinearVelocity.X.Should().Be(-SPEED);
         }
@@ -56,7 +57,7 @@ namespace Tests.Integration
             var body = world.CreateBody();
             body.BodyType = BodyType.Dynamic;
             var controller = new PlayerController(body);
-            var input = new InputCommand(false, true, false, false, false);
+            var input = new InputSnapshot(false, true, false, false, false);
             controller.FixedUpdate(input);
             body.LinearVelocity.X.Should().Be(SPEED);
         }
@@ -68,7 +69,7 @@ namespace Tests.Integration
             var body = world.CreateBody();
             body.BodyType = BodyType.Dynamic;
             var controller = new PlayerController(body);
-            var input = new InputCommand(true, false, true, false, false);
+            var input = new InputSnapshot(true, false, true, false, false);
             controller.FixedUpdate(input);
             var expected = new Vector2Aether(-1, -1);
             expected.Normalize();
@@ -84,7 +85,7 @@ namespace Tests.Integration
             var body = world.CreateBody();
             body.BodyType = BodyType.Dynamic;
             var controller = new PlayerController(body);
-            var input = new InputCommand(false, false, false, false, false);
+            var input = new InputSnapshot(false, false, false, false, false);
             controller.FixedUpdate(input);
             body.LinearVelocity.Should().Be(Vector2Aether.Zero);
         }

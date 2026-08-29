@@ -22,6 +22,7 @@ public static class GameLogger
 
             // Enrichers
             .Enrich.WithThreadId()
+            .Enrich.FromLogContext()
             .Enrich.With<ThreadNameEnricher>()
             // .Enrich.With<GameTickEnricher>()
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using Game.Core.Data.ConfigClasses;
 using Game.Core.Infrastructure.Channels;
@@ -10,28 +11,40 @@ using Serilog;
 
 namespace Game.Core.Data;
 
-public class DataManager(ChannelHub channelHub) : BaseThread
+public class DataManager(ChannelHub channelHub)
 {
     private string _configBasePath;
-    private List<EntityConfig> Entities { get; set; } = new();
-    protected override void Prepare()
-    {
-        _configBasePath = Path.Combine(AppContext.BaseDirectory, "Content", "Configs");
-        
-        var entitiesJson = LoadConfig("entities.json");
-        Entities = JsonSerializer.Deserialize<List<EntityConfig>>(entitiesJson);
-
-        foreach (var entityConfig in Entities)
-        {
-            channelHub.DataToMain.Writer.TryWrite(new TextureLoad(entityConfig.TextureKey));
-        }
-    }
-
-    protected override void FixedUpdate(float deltaTime)
-    {
-        
-    }
+    private Dictionary<string, EntityConfig> EntityConfigs { get; set; } = new();
     
+    public void Start()
+    {
+        try
+        {
+            _configBasePath = Path.Combine(AppContext.BaseDirectory, "Content", "Configs");
+        
+            var entitiesJson = LoadConfig("entities.json");
+            var configs = JsonSerializer.Deserialize<List<EntityConfig>>(entitiesJson);
+        
+            EntityConfigs = configs.ToDictionary(x => x.Species, x => x);
+        
+            HashSet<string> textureKeys = new();
+            foreach (var entityConfig in EntityConfigs)
+            {
+                if (textureKeys.Add(entityConfig.Value.TextureKey))
+                    channelHub.DataToMain.Writer.TryWrite(new TextureLoad(entityConfig.Value.TextureKey));
+            }
+        
+            channelHub.DataToLogic.Writer.TryWrite(new EntityConfigs(EntityConfigs));
+        
+            channelHub.DataToLogic.Writer.TryWrite(new DataLoaded(true));
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Error while loading configuration file");
+        }
+        
+    }
+
     private string LoadConfig(string fileName)
     {
         var fullPath = Path.Combine(_configBasePath, fileName);

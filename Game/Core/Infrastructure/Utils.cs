@@ -1,5 +1,5 @@
 ﻿using System;
-using Game.Core.Logic.Entities.Data;
+using Game.Core.Data.ConfigClasses;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Game.Core.Infrastructure;
@@ -24,7 +24,7 @@ public static class PhysicsScale
     public const float PIXELS_PER_METER = 16f;
 }
 
-public class LogicEntity(EntityData data)
+public class LogicEntity(EntityConfig data)
 {
     public required Guid Id { get; init; }
     public required EntityKind Kind { get; init; }

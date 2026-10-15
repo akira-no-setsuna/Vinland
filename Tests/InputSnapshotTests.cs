@@ -1,4 +1,5 @@
-using Game.Core.Main.Input;
+using Vinland.Core.Main.Input;
+using Vinland.Main.Input;
 
 namespace Game.Tests;
 

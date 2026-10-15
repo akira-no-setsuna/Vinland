@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Game.Core.Data.ConfigClasses;
-using Game.Core.Infrastructure;
-using Game.Core.Infrastructure.Channels;
-using Game.Core.Infrastructure.Channels.Commands;
-using Game.Core.Logic;
+using Vinland.Core.Data.ConfigClasses;
+using Vinland.Core.Infrastructure;
+using Vinland.Core.Infrastructure.Channels;
+using Vinland.Core.Infrastructure.Channels.Commands;
+using Vinland.Core.Logic;
 
 namespace Game.Tests;
 
@@ -25,7 +25,7 @@ public class LogicManagerTests
         
         logic.ManualUpdate(1, 1f / 60f);
         
-        hub.LogicToPhysic.Reader.TryRead(out var pCmd).Should().BeTrue();
+        hub.LogicToPhysics.Reader.TryRead(out var pCmd).Should().BeTrue();
         pCmd.Should().BeOfType<BodySpawn>();
         
         hub.LogicToMain.Reader.TryRead(out var mCmd).Should().BeTrue();

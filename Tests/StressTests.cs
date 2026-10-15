@@ -1,7 +1,7 @@
 using System;
-using Game.Core.Infrastructure.Channels;
-using Game.Core.Infrastructure.Channels.Commands;
-using Game.Core.Physics;
+using Vinland.Core.Infrastructure.Channels;
+using Vinland.Core.Infrastructure.Channels.Commands;
+using Vinland.Core.Physics;
 
 namespace Game.Tests;
 
@@ -17,7 +17,7 @@ public class StressTests
         for (int room = 0; room < 10; room++)
         {
             for (int i = 0; i < 100; i++)
-                hub.LogicToPhysic.Writer.TryWrite(new BodySpawn(room, Guid.NewGuid(), Vector2.Zero, 1, 1));
+                hub.LogicToPhysics.Writer.TryWrite(new BodySpawn(room, Guid.NewGuid(), Vector2.Zero, 1, 1));
             
             phys.ManualUpdate(room, 1f/60f);
             

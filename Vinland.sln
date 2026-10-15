@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{830B7902-1E5D-43DE-B2F4-E9C639B16496}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vinland", "Vinland\Vinland.csproj", "{830B7902-1E5D-43DE-B2F4-E9C639B16496}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{B8CBCC65-7BE0-4488-8669-57BF96F89398}"
 EndProject

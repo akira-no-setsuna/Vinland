@@ -1,5 +1,5 @@
-using Game.Core.Data;
-using Game.Core.Infrastructure.Channels;
+using Vinland.Core.Data;
+using Vinland.Core.Infrastructure.Channels;
 
 namespace Game.Tests;
 

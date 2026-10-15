@@ -1,4 +1,4 @@
-using Game.Core.Infrastructure;
+using Vinland.Core.Infrastructure;
 
 namespace Game.Tests;
 

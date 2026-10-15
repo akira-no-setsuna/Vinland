@@ -1,9 +1,9 @@
 bin/
 obj/
-projectSettingsUpdater.xml
-shelved.patch
-shelved.patch
-sing tilemap level room_01
-Uncommitted_changes_before_Merge_at_05_08_2026__21_11__Changes_.xml
+build/
+**/Content/bin/
+**/Content/obj/
+*.tiled-session
+*.DotSettings.user
 Vinland.sln.DotSettings
-Game/pipeline-references/
+/.idea/.idea.Vinland/.idea/vcs.xml

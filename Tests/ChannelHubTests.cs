@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using Game.Core.Infrastructure.Channels;
-using Game.Core.Infrastructure.Channels.Commands;
+using Vinland.Core.Infrastructure.Channels;
+using Vinland.Core.Infrastructure.Channels.Commands;
 
 namespace Game.Tests;
 

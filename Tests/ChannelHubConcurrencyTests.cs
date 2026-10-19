@@ -1,5 +1,5 @@
-using Vinland.Core.Infrastructure.Channels;
-using Vinland.Core.Infrastructure.Channels.Commands;
+using Vinland.Monogame.Core.Infrastructure.Channels;
+using Vinland.Monogame.Core.Infrastructure.Channels.Commands;
 
 namespace Game.Tests;
 

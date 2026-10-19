@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Vinland\Vinland.csproj" />
+    <ProjectReference Include="..\Vinland.Monogame\Vinland.Monogame.csproj" />
   </ItemGroup>
 
 </Project>

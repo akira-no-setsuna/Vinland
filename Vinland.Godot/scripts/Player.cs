@@ -1,6 +1,8 @@
 using Godot;
+using Vinland.Monogame;
+using Vinland.Monogame.Core.Logic;
 
-namespace Vinland;
+namespace Vinland.Godot;
 
 public partial class Player : CharacterBody2D
 {

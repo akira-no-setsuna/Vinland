@@ -1,10 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vinland", "Vinland\Vinland.csproj", "{830B7902-1E5D-43DE-B2F4-E9C639B16496}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vinland.Monogame", "Vinland.Monogame\Vinland.Monogame.csproj", "{830B7902-1E5D-43DE-B2F4-E9C639B16496}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{B8CBCC65-7BE0-4488-8669-57BF96F89398}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vinland.Godot", "Vinland.Godot\Vinland.Godot.csproj", "{71540735-3A40-495C-A2DE-157868A0DC3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vinland.Core", "Vinland.Core\Vinland.Core.csproj", "{909EF12A-7DD9-49C7-BA55-12897B60D144}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +26,9 @@ Global
 		{71540735-3A40-495C-A2DE-157868A0DC3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71540735-3A40-495C-A2DE-157868A0DC3E}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{71540735-3A40-495C-A2DE-157868A0DC3E}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{909EF12A-7DD9-49C7-BA55-12897B60D144}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{909EF12A-7DD9-49C7-BA55-12897B60D144}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{909EF12A-7DD9-49C7-BA55-12897B60D144}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{909EF12A-7DD9-49C7-BA55-12897B60D144}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

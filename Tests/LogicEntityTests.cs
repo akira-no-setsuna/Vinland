@@ -1,6 +1,6 @@
-using Vinland.Core.Data.ConfigClasses;
-using Vinland.Core.Infrastructure;
-using Vinland.Logic.Entities;
+using Vinland.Monogame.Core.Data.ConfigClasses;
+using Vinland.Monogame.Core.Infrastructure;
+using Vinland.Monogame.Logic.Entities;
 
 namespace Game.Tests;
 

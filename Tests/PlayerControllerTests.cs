@@ -1,9 +1,9 @@
 using System;
-using Vinland.Core.Infrastructure.Channels;
-using Vinland.Core.Infrastructure.Channels.Commands;
-using Vinland.Core.Main.Input;
-using Vinland.Core.Logic.Entities;
-using Vinland.Main.Input;
+using Vinland.Monogame.Core.Infrastructure.Channels;
+using Vinland.Monogame.Core.Infrastructure.Channels.Commands;
+using Vinland.Monogame.Core.Main.Input;
+using Vinland.Monogame.Core.Logic.Entities;
+using Vinland.Monogame.Main.Input;
 
 namespace Game.Tests;
 

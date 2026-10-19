@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Vinland.Main;
+namespace Vinland.Godot.Main;
 
 public partial class Manager : Node
 {

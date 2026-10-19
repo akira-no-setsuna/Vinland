@@ -11,7 +11,6 @@
         <IsPackable>false</IsPackable>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
-        <RootNamespace>Vinland</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -31,25 +30,15 @@
 
         <!-- FSM -->
         <PackageReference Include="Stateless" Version="5.20.1" />
-
-        <!-- ReGoap — если пакет есть на NuGet. Иначе раскомментируй ProjectReference -->
-        <!-- <PackageReference Include="ReGoap" Version="*" /> -->
-        <!-- <ProjectReference Include="libs/ReGoap/ReGoap.csproj" /> -->
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="6.0.4" />
-        <PackageReference Include="FluentAssertions" Version="6.12.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-        <PackageReference Include="Moq" Version="4.20.70" />
-        <PackageReference Include="xunit" Version="2.9.3" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
     </ItemGroup>
     
     <ItemGroup>
-        <Using Include="Xunit" />
         <Compile Remove="scripts/Old/**/*.cs" />
         <Compile Remove="tests/Old/**/*.cs" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\Vinland.Monogame\Vinland.Monogame.csproj" />
     </ItemGroup>
 
 </Project>

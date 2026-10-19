@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Vinland.Core.Data.ConfigClasses;
-using Vinland.Core.Infrastructure.Channels;
-using Vinland.Core.Infrastructure.Channels.Commands;
-using Vinland.Core.Logic;
-using Vinland.Core.Physics;
+using Vinland.Monogame.Core.Data.ConfigClasses;
+using Vinland.Monogame.Core.Infrastructure.Channels;
+using Vinland.Monogame.Core.Infrastructure.Channels.Commands;
+using Vinland.Monogame.Core.Logic;
+using Vinland.Monogame.Core.Physics;
 
 namespace Game.Tests;
 

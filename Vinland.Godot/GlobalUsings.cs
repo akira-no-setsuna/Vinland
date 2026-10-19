@@ -1,3 +1,3 @@
 // Global using directives
 
-namespace Vinland;
+namespace Vinland.Godot;

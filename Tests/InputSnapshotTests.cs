@@ -1,5 +1,5 @@
-using Vinland.Core.Main.Input;
-using Vinland.Main.Input;
+using Vinland.Monogame.Core.Main.Input;
+using Vinland.Monogame.Main.Input;
 
 namespace Game.Tests;
 

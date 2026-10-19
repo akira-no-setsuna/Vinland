@@ -1,5 +1,5 @@
 using System;
-using Vinland.Core.Infrastructure.Services.Threads;
+using Vinland.Monogame.Core.Infrastructure.Services.Threads;
 
 namespace Game.Tests;
 

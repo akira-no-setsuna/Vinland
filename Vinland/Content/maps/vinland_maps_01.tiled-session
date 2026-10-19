@@ -1,0 +1,82 @@
+{
+    "activeFile": "D:/Projects/Vinland/Content/maps/rooms/room_01.tmx",
+    "expandedProjectPaths": [
+        "Rooms",
+        "."
+    ],
+    "fileStates": {
+        "D:/Projects/Vinland/Content/maps/Dungeon Tileset.tsx": {
+            "scaleInDock": 1
+        },
+        "D:/Projects/Vinland/Content/maps/rooms/room_01.tmx": {
+            "scale": 3,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 175.66666666666666,
+                "y": 134
+            }
+        },
+        "D:/Projects/Vinland/Content/maps/tools.tsx": {
+            "scaleInDock": 1
+        },
+        "Dungeon Tileset.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
+        },
+        "Rooms/Dungeon Tileset.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "Rooms/room_01.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 189.66666666666663,
+                "y": 95.66666666666664
+            }
+        },
+        "Rooms/tools.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "room_01.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 178.66666666666669,
+                "y": 143
+            }
+        },
+        "tools.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.externalTilesetPath": "D:/Projects/Vinland/Content/Maps",
+    "last.imagePath": "D:/Projects/Vinland/Content/maps/tile_sets/2D Pixel Dungeon Asset Pack v2.0/2D Pixel Dungeon Asset Pack/character and tileset",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "openFiles": [
+        "Dungeon Tileset.tsx",
+        "tools.tsx",
+        "Rooms/room_01.tmx",
+        "D:/Projects/Vinland/Content/maps/rooms/room_01.tmx"
+    ],
+    "project": "vinland_maps_01.tiled-project",
+    "recentFiles": [
+        "Dungeon Tileset.tsx",
+        "tools.tsx",
+        "Rooms/room_01.tmx",
+        "D:/Projects/Vinland/Content/maps/rooms/room_01.tmx",
+        "room_01.tmx"
+    ],
+    "tileset.lastUsedFilter": "Файлы набора тайлов Tiled (*.tsx *.xml)",
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}

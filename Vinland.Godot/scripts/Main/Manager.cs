@@ -1,16 +1,27 @@
+using System;
+using System.Collections.Generic;
 using Godot;
+using Vinland.Core.Infrastructure.Channels;
+using Vinland.Godot.Connector;
 
 namespace Vinland.Godot.Main;
 
 public partial class Manager : Node
 {
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
+	private GodotConnector _connector;
+
+	public Manager()
 	{
+		_connector = new GodotConnector(new GameModules(), this);
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
+	public override void _Ready()
 	{
+		 _connector.Initialize();
+	}
+
+	public override void _PhysicsProcess(double delta)
+	{
+		_connector.Update(1 / 60f);
 	}
 }

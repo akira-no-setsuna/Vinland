@@ -1,9 +1,8 @@
 using System;
-using Vinland.Monogame.Core.Data.ConfigClasses;
-using Vinland.Monogame.Core.Infrastructure;
-using Vinland.Monogame.Core.Infrastructure.Channels;
-using Vinland.Monogame.Core.Infrastructure.Channels.Commands;
-using Vinland.Monogame.Core.Logic.Entities;
+using Vinland.Monogame.Data.Config;
+using Vinland.Monogame.Infrastructure.Channels;
+using Vinland.Monogame.Infrastructure.Channels.Commands;
+using Vinland.Monogame.Logic.Entities;
 
 namespace Game.Tests;
 

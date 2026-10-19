@@ -1,12 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
-using Vinland.Monogame.Core.Infrastructure;
-using Vinland.Monogame.Core.Infrastructure.Channels;
-using Vinland.Monogame.Core.Infrastructure.Services;
-using Vinland.Monogame.Core.Infrastructure.Services.Threads;
-using Vinland.Monogame.Core.Logic;
-using Vinland.Monogame.Core.Physics;
-using Vinland.Monogame.Core.Data;
-using Vinland.Monogame.Core.Main.Input;
+using Vinland.Monogame.Data;
+using Vinland.Monogame.Infrastructure;
+using Vinland.Monogame.Infrastructure.Channels;
+using Vinland.Monogame.Infrastructure.Services;
+using Vinland.Monogame.Infrastructure.Services.Threads;
+using Vinland.Monogame.Logic;
+using Vinland.Monogame.Main.Input;
+using Vinland.Monogame.Physics;
 
 namespace Game.Tests;
 

@@ -1,7 +1,7 @@
 using System;
-using Vinland.Monogame.Core.Infrastructure.Channels;
-using Vinland.Monogame.Core.Infrastructure.Channels.Commands;
-using Vinland.Monogame.Core.Physics;
+using Vinland.Monogame.Infrastructure.Channels;
+using Vinland.Monogame.Infrastructure.Channels.Commands;
+using Vinland.Monogame.Physics;
 
 namespace Game.Tests;
 

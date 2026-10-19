@@ -26,7 +26,7 @@ window/stretch/aspect="expand"
 
 [dotnet]
 
-project/assembly_name="Vinland"
+project/assembly_name="Vinland.Godot"
 
 [editor]
 

@@ -22,12 +22,12 @@ public abstract class BaseThread
         }
 
         CurrentTick = tick;
-        FixedUpdate(tick, deltaTime);
+        Update(tick, deltaTime);
     }
 
     protected virtual void Prepare()
     {
     }
 
-    protected abstract void FixedUpdate(long tick, float deltaTime);
+    protected abstract void Update(long tick, float deltaTime);
 }

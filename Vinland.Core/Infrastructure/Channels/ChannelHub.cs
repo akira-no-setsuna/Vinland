@@ -22,13 +22,13 @@ public class ChannelHub
             SingleWriter = true
         });
 
-    public Channel<GameplayCommand> Gameplay { get; } = Channel.CreateBounded<GameplayCommand>(
+    public Channel<HostCommand> Host { get; } = Channel.CreateBounded<HostCommand>(
         new BoundedChannelOptions(512)
         {
             FullMode = BoundedChannelFullMode.DropOldest
         });
     
-    public Channel<RuntimeCommand> Runtime { get; } = Channel.CreateBounded<RuntimeCommand>(
+    public Channel<CoreCommand> Core { get; } = Channel.CreateBounded<CoreCommand>(
         new BoundedChannelOptions(512)
         {
             FullMode = BoundedChannelFullMode.DropOldest

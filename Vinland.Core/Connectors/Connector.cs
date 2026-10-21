@@ -46,13 +46,20 @@ public abstract class Connector(IExternalModules modules)
             _simulation.ManualUpdate(tick, delta);
         });
         CommandRead();
+        PositionsUpdate();
     }
     
     private void CommandRead()
     {
-        while (_channelHub.Gameplay.Reader.TryRead(out var cmd))
+        while (_channelHub.Core.Reader.TryRead(out var cmd))
             OnCommand(cmd);
     }
+
+    private void PositionsUpdate()
+    {
+        _channelHub.Host.Writer.TryWrite(PositionSnapshot());
+    }
     
-    protected abstract void OnCommand(GameplayCommand cmd);
+    protected abstract void OnCommand(CoreCommand cmd);
+    protected abstract PositionSnapshot PositionSnapshot();
 }

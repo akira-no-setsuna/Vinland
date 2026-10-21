@@ -4,6 +4,7 @@ using Godot;
 using Serilog;
 using Vinland.Core.Infrastructure.Bootstrap;
 using Vinland.Core.Infrastructure.Channels;
+using Vector2 = System.Numerics.Vector2;
 
 namespace Vinland.Godot.Connector;
 
@@ -11,7 +12,7 @@ public class GodotConnector(IExternalModules modules, Node level) : Core.Connect
 {
     private Dictionary<Guid, CharacterBody2D> _entities = new ();
     
-    protected override void OnCommand(GameplayCommand cmd)
+    protected override void OnCommand(CoreCommand cmd)
     {
         switch (cmd)
         {
@@ -23,7 +24,7 @@ public class GodotConnector(IExternalModules modules, Node level) : Core.Connect
                 break;
         }
     }
-
+    
     private void SetVelocity(SetVelocity cmd)
     {
         if (!_entities.TryGetValue(cmd.EntityID, out var entity))
@@ -33,8 +34,6 @@ public class GodotConnector(IExternalModules modules, Node level) : Core.Connect
             entity.Velocity = cmd.Velocity.ToGodot();
             entity.MoveAndSlide();
         }
-
-
     }
     
     private void Spawn(SpawnCommand cmd)
@@ -45,6 +44,19 @@ public class GodotConnector(IExternalModules modules, Node level) : Core.Connect
         
         entity.Position = cmd.Position.ToGodot();
         level.AddChild(entity);
+    }
+
+    protected override PositionSnapshot PositionSnapshot()
+    {
+        List<(Guid, Vector2)> positions = new();
+
+        foreach (var entity in _entities)
+        {
+            positions.Add((entity.Key,
+                entity.Value.Position.ToNet()));
+        }
+        
+        return  new PositionSnapshot(positions.ToArray());
     }
 }
 

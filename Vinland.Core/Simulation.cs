@@ -25,15 +25,16 @@ public class Simulation(ChannelHub channelHub) : BaseThread
         _spawnCommands.Enqueue(new SpawnCommand(Guid.NewGuid(), EntityKind.Player, Vector2.Zero));
     }
 
-    protected override void FixedUpdate(long tick, float deltaTime)
+    protected override void Update(long tick, float deltaTime)
     {
-        RuntimeReader();
+        HostReader();
         EntitiesSpawn();
+        _playerController.Update(_playerID, _speed);
     }
 
-    private void RuntimeReader()
+    private void HostReader()
     {
-        while (channelHub.Runtime.Reader.TryRead(out var mainCommand))
+        while (channelHub.Host.Reader.TryRead(out var mainCommand))
             switch (mainCommand)
             {
                 case PositionSnapshot snapshot:
@@ -61,17 +62,17 @@ public class Simulation(ChannelHub channelHub) : BaseThread
             _playerID = command.EntityID;
             
             _entities.Add(entity.Id, entity);
-            channelHub.Gameplay.Writer.TryWrite(command);
+            channelHub.Core.Writer.TryWrite(command);
         }
     }
 
     // Update logic entities positions
     private void UpdatePositions(PositionSnapshot snapshot)
     {
-        for (int i = 0; i < snapshot.EntityID.Length; i++)
+        for (int i = 0; i < snapshot.Positions.Length; i++)
         {
-            if (_entities.TryGetValue(snapshot.EntityID[i], out var logicEntity))
-                logicEntity.Position = snapshot.Position[i];
+            if (_entities.TryGetValue(snapshot.Positions[i].Item1, out var logicEntity))
+                logicEntity.Position = snapshot.Positions[i].Item2;
         }
     }
 }

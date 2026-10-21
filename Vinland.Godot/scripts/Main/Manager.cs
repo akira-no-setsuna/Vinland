@@ -20,8 +20,8 @@ public partial class Manager : Node
 		 _connector.Initialize();
 	}
 
-	public override void _PhysicsProcess(double delta)
+	public override void _Process(double delta)
 	{
-		_connector.Update(1 / 60f);
+		_connector.Update((float)delta);
 	}
 }

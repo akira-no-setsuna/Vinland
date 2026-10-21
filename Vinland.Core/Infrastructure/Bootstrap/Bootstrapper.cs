@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
+using Serilog;
 using Vinland.Core.Connectors.Input;
 using Vinland.Core.Infrastructure.Channels;
 using Vinland.Core.Infrastructure.Services;
@@ -24,8 +25,8 @@ public static class Bootstrapper
 
         return services;
     }
-    
-    public static class RuntimeContract
+
+    private static class RuntimeContract
     {
         public static readonly Type[] Required =
         [
@@ -43,9 +44,8 @@ public static class Bootstrapper
         var missing = RuntimeContract.Required.Where(t => !registered.Contains(t)).ToArray();
 
         if (missing.Length > 0)
-            throw new InvalidOperationException(
-                "Runtime не зарегистрировал обязательные сервисы: " +
-                string.Join(", ", missing.Select(t => t.Name)));
+            Log.Error("Host не зарегистрировал обязательные сервисы: {@MissingServices}", 
+                missing.Select(t => t.Name));
 
         return services.BuildServiceProvider(new ServiceProviderOptions
         {

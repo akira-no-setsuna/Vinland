@@ -7,12 +7,12 @@ using SpawnCommand = Vinland.Core.Infrastructure.Channels.SpawnCommand;
 
 namespace Vinland.Core;
 
-public class Simulation(ChannelHub hub) : BaseThread
+public class Simulation(ChannelHub channelHub) : BaseThread
 {
     private readonly Dictionary<Guid, Entity> _entities = new();
 
     // Entities
-    private readonly PlayerController _playerController = new(hub);
+    private readonly PlayerController _playerController = new(channelHub);
     private readonly Queue<SpawnCommand> _spawnCommands = new();
 
     // Player
@@ -22,21 +22,18 @@ public class Simulation(ChannelHub hub) : BaseThread
 
     protected override void Prepare()
     {
-        _spawnCommands.Enqueue(new SpawnCommand(new Guid(), EntityKind.Player, Vector2.Zero));
+        _spawnCommands.Enqueue(new SpawnCommand(Guid.NewGuid(), EntityKind.Player, Vector2.Zero));
     }
 
     protected override void FixedUpdate(long tick, float deltaTime)
     {
-        MainReader();
+        RuntimeReader();
         EntitiesSpawn();
-        
-        if (!FoundPlayer()) return;
-        _playerController.FixedUpdate(_playerID, _speed);
     }
 
-    private void MainReader()
+    private void RuntimeReader()
     {
-        while (hub.Runtime.Reader.TryRead(out var mainCommand))
+        while (channelHub.Runtime.Reader.TryRead(out var mainCommand))
             switch (mainCommand)
             {
                 case PositionSnapshot snapshot:
@@ -52,6 +49,8 @@ public class Simulation(ChannelHub hub) : BaseThread
     {
         while (_spawnCommands.TryDequeue(out var command))
         {
+            Log.Information("Spawning entity {entity}", command.EntityID);
+            
             var entity = new Entity()
             {
                 Id = command.EntityID,
@@ -59,8 +58,10 @@ public class Simulation(ChannelHub hub) : BaseThread
                 Position = command.Position,
             };
             
+            _playerID = command.EntityID;
+            
             _entities.Add(entity.Id, entity);
-            hub.Gameplay.Writer.TryWrite(command);
+            channelHub.Gameplay.Writer.TryWrite(command);
         }
     }
 
@@ -71,23 +72,6 @@ public class Simulation(ChannelHub hub) : BaseThread
         {
             if (_entities.TryGetValue(snapshot.EntityID[i], out var logicEntity))
                 logicEntity.Position = snapshot.Position[i];
-            else Log.Warning("EntityID: {id} logic not found", snapshot.Position[i]);
         }
-    }
-
-    private bool FoundPlayer()
-    {
-        if (_playerID != Guid.Empty)
-            return true;
-
-        var player = _entities.Values.FirstOrDefault(e => e.Kind == EntityKind.Player);
-        if (player != null)
-        {
-            _playerID = player.Id;
-            return true;
-        }
-
-        Log.Error("Player not found");
-        return false;
     }
 }

@@ -4,6 +4,8 @@ using System.Threading;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
+
 namespace Vinland.Core.Infrastructure.Services;
 
 public static class Logger
@@ -24,7 +26,10 @@ public static class Logger
             .Enrich.FromLogContext()
             .Enrich.With<ThreadNameEnricher>()
             // .Enrich.With<GameTickEnricher>()
-
+            .WriteTo.Console(
+                theme: AnsiConsoleTheme.Code,
+                applyThemeToRedirectedOutput: true
+            )
             // Main Log
             .WriteTo.Async(a => a.File(
                 LOG_FILE_TEMPLATE,

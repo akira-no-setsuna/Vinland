@@ -1,8 +1,8 @@
 using System;
-using Game.Core.Infrastructure.Channels;
-using Game.Core.Infrastructure.Channels.Commands;
-using Game.Core.Main.Input;
-using Game.Core.Logic.Entities;
+using Vinland.Monogame.Infrastructure.Channels;
+using Vinland.Monogame.Infrastructure.Channels.Commands;
+using Vinland.Monogame.Logic.Entities;
+using Vinland.Monogame.Main.Input;
 
 namespace Game.Tests;
 
@@ -18,7 +18,7 @@ public class PlayerControllerTests
 
         ctrl.FixedUpdate(1, pid, 5f);
 
-        hub.LogicToPhysic.Reader.TryRead(out var cmd).Should().BeTrue();
+        hub.LogicToPhysics.Reader.TryRead(out var cmd).Should().BeTrue();
         var v = cmd.Should().BeOfType<SetVelocity>().Which;
         v.Velocity.X.Should().BeApproximately(5f, 0.01f);
     }

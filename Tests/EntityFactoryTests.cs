@@ -1,9 +1,8 @@
 using System;
-using Game.Core.Data.ConfigClasses;
-using Game.Core.Infrastructure;
-using Game.Core.Infrastructure.Channels;
-using Game.Core.Infrastructure.Channels.Commands;
-using Game.Core.Logic.Entities;
+using Vinland.Monogame.Data.Config;
+using Vinland.Monogame.Infrastructure.Channels;
+using Vinland.Monogame.Infrastructure.Channels.Commands;
+using Vinland.Monogame.Logic.Entities;
 
 namespace Game.Tests;
 
@@ -22,7 +21,7 @@ public class EntityFactoryTests
         hub.LogicToMain.Reader.TryRead(out var mc).Should().BeTrue();
         mc.Should().BeOfType<TextureSpawn>().Which.EntityID.Should().Be(e.Id);
 
-        hub.LogicToPhysic.Reader.TryRead(out var pc).Should().BeTrue();
+        hub.LogicToPhysics.Reader.TryRead(out var pc).Should().BeTrue();
         pc.Should().BeOfType<BodySpawn>().Which.EntityID.Should().Be(e.Id);
     }
 }

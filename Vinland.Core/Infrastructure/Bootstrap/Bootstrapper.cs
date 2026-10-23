@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
 using Serilog;
 using Vinland.Core.Connectors.Input;
+using Vinland.Core.Entities;
 using Vinland.Core.Infrastructure.Channels;
 using Vinland.Core.Infrastructure.Services;
 using Vinland.Core.Infrastructure.Services.Threads;
@@ -16,13 +17,14 @@ public static class Bootstrapper
         services.AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
         services.AddSingleton<ThreadManager>();
 
-        services.AddSingleton(sp => new Simulation
-            (sp.GetRequiredService<ChannelHub>()));
+        services.AddSingleton(sp => new Simulation(
+            sp.GetRequiredService<ChannelHub>(),
+                sp.GetRequiredService<EntityManager>()
+            ));
+        services.AddSingleton<EntityManager>();
         
         services.AddSingleton<Clock>();
-        services.AddSingleton(Logger.Configure(true));
         
-
         return services;
     }
 

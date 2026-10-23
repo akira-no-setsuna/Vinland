@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using Serilog;
 using Vinland.Core.Infrastructure.Channels;
 using Vinland.Godot.Connector;
 
@@ -20,8 +21,8 @@ public partial class Manager : Node
 		 _connector.Initialize();
 	}
 
-	public override void _Process(double delta)
+	public override void _PhysicsProcess(double delta)
 	{
-		_connector.Update((float)delta);
+		_connector.Update((float)delta);;
 	}
 }

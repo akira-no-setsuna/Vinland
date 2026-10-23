@@ -7,22 +7,21 @@ using SpawnCommand = Vinland.Core.Infrastructure.Channels.SpawnCommand;
 
 namespace Vinland.Core;
 
-public class Simulation(ChannelHub channelHub) : BaseThread
+public class Simulation(ChannelHub channelHub, EntityManager entityManager) : BaseThread
 {
-    private readonly Dictionary<Guid, Entity> _entities = new();
-
     // Entities
     private readonly PlayerController _playerController = new(channelHub);
     private readonly Queue<SpawnCommand> _spawnCommands = new();
 
     // Player
-    private Guid _playerID;
+    private long _playerID;
     private float _speed = 1.4f;
 
 
     protected override void Prepare()
     {
-        _spawnCommands.Enqueue(new SpawnCommand(Guid.NewGuid(), EntityKind.Player, Vector2.Zero));
+        _playerID = entityManager.Spawn(new SpawnCommand(null ,EntityKind.Player, Vector2.Zero));
+        entityManager.Spawn(new SpawnCommand(null ,EntityKind.Enemy, Vector2.Zero));
     }
 
     protected override void Update(long tick, float deltaTime)
@@ -50,29 +49,23 @@ public class Simulation(ChannelHub channelHub) : BaseThread
     {
         while (_spawnCommands.TryDequeue(out var command))
         {
-            Log.Information("Spawning entity {entity}", command.EntityID);
-            
-            var entity = new Entity()
-            {
-                Id = command.EntityID,
-                Kind = command.Kind,
-                Position = command.Position,
-            };
-            
-            _playerID = command.EntityID;
-            
-            _entities.Add(entity.Id, entity);
-            channelHub.Core.Writer.TryWrite(command);
+            entityManager.Spawn(command);
         }
     }
 
     // Update logic entities positions
     private void UpdatePositions(PositionSnapshot snapshot)
     {
-        for (int i = 0; i < snapshot.Positions.Length; i++)
+        if (snapshot.Entities.Count != snapshot.Positions.Count)
         {
-            if (_entities.TryGetValue(snapshot.Positions[i].Item1, out var logicEntity))
-                logicEntity.Position = snapshot.Positions[i].Item2;
+            Log.Error("Snapshot mismatch: {Ids} ids, {Pos} positions",
+                snapshot.Entities.Count, snapshot.Positions.Count);
+            return;
+        }
+        
+        for (int i = 0; i < snapshot.Entities.Count; i++)
+        {
+            entityManager.UpdatePositions(snapshot.Entities[i], snapshot.Positions[i]);
         }
     }
 }

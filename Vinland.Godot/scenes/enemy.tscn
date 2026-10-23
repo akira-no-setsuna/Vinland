@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://sdvqxim1ruao"]
+
+[ext_resource type="SpriteFrames" uid="uid://s2jo0tmd3ft5" path="res://skelet_sprite_frames.tres" id="1_m6s0g"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_dcr4t"]
+radius = 2.0
+height = 10.0
+
+[node name="enemy" type="CharacterBody2D" unique_id=1983414611]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=94924505]
+position = Vector2(0, -8)
+sprite_frames = ExtResource("1_m6s0g")
+animation = &"idle"
+frame_progress = 0.5390401
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1941792440]
+rotation = 1.5707964
+shape = SubResource("CapsuleShape2D_dcr4t")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1401267227]

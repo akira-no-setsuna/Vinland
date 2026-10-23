@@ -5,7 +5,7 @@ namespace Vinland.Core.Entities;
 
 public class PlayerController(ChannelHub channelHub)
 {
-    public void Update(Guid playerID, float speed)
+    public void Update(long playerID, float speed)
     {
         channelHub.InputSnapshots.Reader.TryRead(out var input);
 

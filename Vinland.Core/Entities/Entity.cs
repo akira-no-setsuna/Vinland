@@ -2,9 +2,9 @@ namespace Vinland.Core.Entities;
 
 public class Entity
 {
-    public required Guid Id { get; init; }
-    public required EntityKind Kind { get; init; }
-    public Vector2 Position { get; set; }
+    public required long ID { get; init; }
+    public required Vector2 Position { get; set; }
+    public EntityKind Kind { get; set; }
 }
 
 public enum EntityKind
@@ -19,3 +19,23 @@ public enum EntityState
     Roaming = 2,
     Follow = 3
 }
+
+
+
+public abstract record EntityDefinition(
+    string Species,
+    string Role, 
+    string Faction
+);
+
+public sealed record Player() : EntityDefinition(
+    "human",
+    "knight",
+    "player"
+    );
+    
+public sealed record Enemy() : EntityDefinition(
+    "skeleton",
+    "meat",
+    "undead"
+    );

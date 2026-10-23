@@ -4,12 +4,12 @@ namespace Vinland.Core.Infrastructure.Channels;
 
 public abstract record CoreCommand;
 public sealed record SpawnCommand(
-    Guid EntityID,
+    long? EntityID,
     EntityKind Kind,
     Vector2 Position
 ) : CoreCommand;
 
 public sealed record SetVelocity(
-    Guid EntityID,
+    long EntityID,
     Vector2 Velocity
 ) : CoreCommand;

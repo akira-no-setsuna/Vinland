@@ -1,0 +1,47 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://s2jo0tmd3ft5"]
+
+[ext_resource type="Texture2D" uid="uid://bnv6clo8q8sis" path="res://assets/skelet/skelet_idle_anim_f0.png" id="1_fs4i4"]
+[ext_resource type="Texture2D" uid="uid://62u28uqdvid0" path="res://assets/skelet/skelet_idle_anim_f1.png" id="2_y7yg4"]
+[ext_resource type="Texture2D" uid="uid://ctgaalmtgve3q" path="res://assets/skelet/skelet_idle_anim_f2.png" id="3_j7sgm"]
+[ext_resource type="Texture2D" uid="uid://5ktq4iylm6p6" path="res://assets/skelet/skelet_idle_anim_f3.png" id="4_x8hj0"]
+[ext_resource type="Texture2D" uid="uid://3xbebaprr2qq" path="res://assets/skelet/skelet_run_anim_f0.png" id="5_wysmx"]
+[ext_resource type="Texture2D" uid="uid://dnl7e7my7wwxt" path="res://assets/skelet/skelet_run_anim_f1.png" id="6_uryvv"]
+[ext_resource type="Texture2D" uid="uid://5w5ee2wltm84" path="res://assets/skelet/skelet_run_anim_f2.png" id="7_ccfjt"]
+[ext_resource type="Texture2D" uid="uid://djumt0ix1fpxc" path="res://assets/skelet/skelet_run_anim_f3.png" id="8_kpg8p"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_fs4i4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_y7yg4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_j7sgm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_x8hj0")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_wysmx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_uryvv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_ccfjt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_kpg8p")
+}],
+"loop": 1,
+"name": &"run",
+"speed": 10.0
+}]

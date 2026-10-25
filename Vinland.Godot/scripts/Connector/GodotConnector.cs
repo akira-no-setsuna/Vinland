@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Serilog;
-using Vinland.Core.Entities;
+using Vinland.Core.Connectors;
 using Vinland.Core.Infrastructure.Bootstrap;
 using Vinland.Core.Infrastructure.Channels;
 using Vector2 = System.Numerics.Vector2;
+
 
 namespace Vinland.Godot.Connector;
 
@@ -40,6 +41,12 @@ public class GodotConnector(IExternalModules modules, Node level) : Core.Connect
     
     private void Spawn(SpawnCommand cmd)
     {
+        if (cmd.EntityID == null)
+        {
+            Log.Warning("Entity {ID} not found, cannot spawn", cmd.EntityID);
+            return;
+        }
+        
         var kind = cmd.Kind.ToString().ToLowerInvariant();
         
         if (!_sceneCache.TryGetValue(kind, out var scene))
@@ -48,9 +55,11 @@ public class GodotConnector(IExternalModules modules, Node level) : Core.Connect
             scene = GD.Load<PackedScene>(path);
             _sceneCache[kind] = scene;
         }
+        var instance = scene.Instantiate<CharacterBody2D>();
         
-        var instance = scene.Instantiate();
         level.AddChild(instance);
+        _entities.Add((long)cmd.EntityID, instance);
+
     }
 
     protected override PositionSnapshot PositionSnapshot()

@@ -6,7 +6,7 @@
 radius = 2.0
 height = 10.0
 
-[node name="skelet" type="CharacterBody2D" unique_id=1983414611]
+[node name="enemy" type="CharacterBody2D" unique_id=1983414611]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=94924505]
 position = Vector2(0, -8)

@@ -22,6 +22,8 @@ public abstract class Connector(IExternalModules modules)
     
     public void Initialize()
     {
+        Logger.Configure(true);
+        
         // DI
         _services = Bootstrapper.ConfigureServices(modules);
     

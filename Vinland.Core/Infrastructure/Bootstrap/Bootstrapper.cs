@@ -20,9 +20,7 @@ public static class Bootstrapper
             (sp.GetRequiredService<ChannelHub>()));
         
         services.AddSingleton<Clock>();
-        services.AddSingleton(Logger.Configure(true));
         
-
         return services;
     }
 

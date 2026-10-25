@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="BidirectionalDictionary" Version="3.1.5" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9"/>
         <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.8"/>
         

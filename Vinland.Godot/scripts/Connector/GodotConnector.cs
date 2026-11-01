@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Serilog;
-using Vinland.Core.Connectors;
 using Vinland.Core.Infrastructure.Bootstrap;
 using Vinland.Core.Infrastructure.Channels;
 using Vector2 = System.Numerics.Vector2;
@@ -30,12 +29,22 @@ public class GodotConnector(IExternalModules modules, Node level) : Core.Connect
     
     private void SetVelocity(SetVelocity cmd)
     {
-        if (!_entities.TryGetValue(cmd.EntityID, out var entity))
-            Log.Warning("Entity {ID} not found, cannot set velocity", cmd.EntityID);
-        else
+        if (cmd.EntityID.Count != cmd.Velocity.Count)
         {
-            entity.Velocity = cmd.Velocity.ToGodot();
-            entity.MoveAndSlide();
+            Log.Warning("IDs count({IDCount}) does doesnt up velocities count({VelocitiesCount})",
+                cmd.EntityID.Count, cmd.Velocity.Count);
+            return;
+        }
+        
+        for (int i = 0; i < cmd.EntityID.Count; i++)
+        {
+            if (!_entities.TryGetValue(cmd.EntityID[i], out var entityBody)) continue;
+            if (!GodotObject.IsInstanceValid(entityBody)) continue;
+            
+            entityBody.Velocity = cmd.Velocity[i].ToGodot();
+            entityBody.MoveAndSlide();
+            
+            cmd.Velocity.Clear();
         }
     }
     

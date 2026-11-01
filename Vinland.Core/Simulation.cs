@@ -10,7 +10,7 @@ namespace Vinland.Core;
 public class Simulation(ChannelHub channelHub, EntityManager entityManager) : BaseThread
 {
     // Entities
-    private readonly PlayerController _playerController = new(channelHub);
+    private PlayerController _playerController;
     private readonly Queue<SpawnCommand> _spawnCommands = new();
 
     // Player
@@ -22,13 +22,14 @@ public class Simulation(ChannelHub channelHub, EntityManager entityManager) : Ba
     {
         _playerID = entityManager.Spawn(new SpawnCommand(null ,EntityKind.Player, Vector2.Zero));
         entityManager.Spawn(new SpawnCommand(null ,EntityKind.Enemy, Vector2.Zero));
+        _playerController = new PlayerController(channelHub, [_playerID]);
     }
 
     protected override void Update(long tick, float deltaTime)
     {
         HostReader();
         EntitiesSpawn();
-        _playerController.Update(_playerID, _speed);
+        _playerController.Update(_speed);
     }
 
     private void HostReader()

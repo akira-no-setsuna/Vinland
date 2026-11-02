@@ -15,7 +15,7 @@ public abstract class Connector(IExternalModules modules)
     private IServiceProvider _services;
     
     private Simulation _simulation;
-    private ChannelHub _channelHub;
+    protected ChannelHub ChannelHub;
     private ThreadManager _threadManager;
     private InputSource _inputSource;
     private Clock _clock;
@@ -28,7 +28,7 @@ public abstract class Connector(IExternalModules modules)
         _services = Bootstrapper.ConfigureServices(modules);
     
         _simulation = _services.GetRequiredService<Simulation>();
-        _channelHub = _services.GetRequiredService<ChannelHub>();
+        ChannelHub = _services.GetRequiredService<ChannelHub>();
         _threadManager = _services.GetRequiredService<ThreadManager>();
         _inputSource = _services.GetRequiredService<InputSource>();
         _clock = _services.GetRequiredService<Clock>();
@@ -53,13 +53,13 @@ public abstract class Connector(IExternalModules modules)
     
     private void CommandRead()
     {
-        while (_channelHub.Core.Reader.TryRead(out var cmd))
+        while (ChannelHub.Core.Reader.TryRead(out var cmd))
             OnCommand(cmd);
     }
 
     private void PositionsUpdate()
     {
-        _channelHub.Host.Writer.TryWrite(PositionSnapshot());
+        ChannelHub.Host.Writer.TryWrite(PositionSnapshot());
     }
     
     protected abstract void OnCommand(CoreCommand cmd);

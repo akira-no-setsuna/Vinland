@@ -9,7 +9,20 @@ public sealed class EntityManager(ChannelHub channelHub)
 
     private readonly Dictionary<long, Entity> _entities = new(4096);
     private readonly Dictionary<(int, int), List<long>> _entitiesMap = new(4096);
+    
+    private readonly Perception _perception = new (channelHub);
 
+
+    public void Update()
+    {
+        _perception.Update(_entities, _entitiesMap);
+    }
+
+    public void SightUpdate(RayCastResponse response)
+    {
+        _perception.HandleResponse(_entities, response);
+    }
+    
     /// <summary>Creates a new entity and automatically assigns a unique identifier.</summary>
     public long Spawn(SpawnCommand cmd)
     {
@@ -18,6 +31,8 @@ public sealed class EntityManager(ChannelHub channelHub)
             ID = id,
             Position = cmd.Position,
             Kind = cmd.Kind,
+            
+            VisionRange = 10f,
         };
 
         if (!_entities.TryAdd(entity.ID, entity))
@@ -49,8 +64,24 @@ public sealed class EntityManager(ChannelHub channelHub)
         Log.Information("Restore entity {entity}", entity.ID);
         return entity.ID;
     }
-
-    public void UpdatePositions(long id, Vector2 position)
+    
+    
+    public void UpdatePositions(PositionSnapshot snapshot)
+    {
+        if (snapshot.Entities.Count != snapshot.Positions.Count)
+        {
+            Log.Error("Snapshot mismatch: {Ids} ids, {Pos} positions",
+                snapshot.Entities.Count, snapshot.Positions.Count);
+            return;
+        }
+        
+        for (int i = 0; i < snapshot.Entities.Count; i++)
+        {
+            UpdatePosition(snapshot.Entities[i], snapshot.Positions[i]);
+        }
+    }
+    
+    private void UpdatePosition(long id, Vector2 position)
     {
         if (!_entities.TryGetValue(id, out var entity))
         {

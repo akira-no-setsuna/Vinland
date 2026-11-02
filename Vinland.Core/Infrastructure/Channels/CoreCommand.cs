@@ -13,3 +13,12 @@ public sealed record SetVelocity(
     List<long> EntityID,
     List<Vector2> Velocity
 ) : CoreCommand;
+
+public sealed record RayCast(
+    long Origin,
+    List<long> Targets
+);
+
+public sealed record RayCastRequest(
+    List<RayCast> Requests
+) : CoreCommand;

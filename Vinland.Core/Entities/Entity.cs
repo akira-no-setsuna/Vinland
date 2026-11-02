@@ -5,6 +5,10 @@ public class Entity
     public required long ID { get; init; }
     public required Vector2 Position { get; set; }
     public EntityKind Kind { get; set; }
+    
+    public float Speed { get; set; }
+    public float VisionRange { get; set; }
+    public List<long> VisibleEntities { get; } = new();
 }
 
 public enum EntityKind

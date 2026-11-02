@@ -7,7 +7,7 @@ using Vinland.Godot.Connector;
 
 namespace Vinland.Godot.Main;
 
-public partial class Manager : Node
+public partial class Manager : Node2D
 {
 	private GodotConnector _connector;
 

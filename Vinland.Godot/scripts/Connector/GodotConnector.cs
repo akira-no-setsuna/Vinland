@@ -47,8 +47,6 @@ public class GodotConnector(IExternalModules modules, Node2D level) : Core.Conne
             entityBody.Velocity = cmd.Velocity[i].ToGodot();
             entityBody.MoveAndSlide();
         }
-        
-        cmd.Velocity.Clear();
     }
 
     private void Spawn(SpawnCommand cmd)

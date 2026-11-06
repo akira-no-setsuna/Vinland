@@ -14,6 +14,6 @@ public static class VectorConvertor
     
     public static Vector2Net ToNet(this Vector2GD v)
     {
-        return new Vector2Net(v.X * PIXELS_PER_METER, v.Y * PIXELS_PER_METER);
+        return new Vector2Net(v.X / PIXELS_PER_METER, v.Y / PIXELS_PER_METER);
     }
 }

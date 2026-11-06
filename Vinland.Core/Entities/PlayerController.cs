@@ -11,6 +11,8 @@ public class PlayerController(ChannelHub channelHub, List<long> playerIDs)
     public void Update(float speed)
     {
         channelHub.InputSnapshots.Reader.TryRead(out var input);
+
+        _velocities.Clear();
         _velocities.Add(input.MoveDirection * speed);
         
         var command = new SetVelocity( _playerIDs, _velocities);

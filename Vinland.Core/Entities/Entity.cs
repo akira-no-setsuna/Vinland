@@ -9,6 +9,8 @@ public class Entity
     public float Speed { get; set; }
     public float VisionRange { get; set; }
     public List<long> VisibleEntities { get; } = new();
+    public long? Target { get; set; }
+    public EntityState State { get; set; } =  EntityState.Idle;
 }
 
 public enum EntityKind

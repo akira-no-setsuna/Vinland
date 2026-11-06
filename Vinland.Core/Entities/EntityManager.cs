@@ -11,19 +11,12 @@ public sealed class EntityManager(ChannelHub channelHub)
     private readonly Dictionary<(int, int), List<long>> _entitiesMap = new(4096);
     
     private readonly EntityPerception _entityPerception = new (channelHub);
-    private readonly EntityBrain _entityBrain = new ();
+    private readonly EntityBrain _entityBrain = new (channelHub);
 
     public void Update()
     {
         _entityPerception.Update(_entities, _entitiesMap);
         _entityBrain.Update(_entities);
-        
-        foreach (var entity in _entities.Values)
-        {
-            if(entity.Kind == EntityKind.Player) continue;
-            if (entity.Target != null)
-                Log.Information("Target {target}, State {state}", _entities[(long)entity.Target].Kind, entity.State);
-        }
     }
 
     public void SightUpdate(RayCastResponse response)

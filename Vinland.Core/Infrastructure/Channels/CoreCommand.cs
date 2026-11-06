@@ -22,3 +22,13 @@ public sealed record RayCast(
 public sealed record RayCastRequest(
     List<RayCast> Requests
 ) : CoreCommand;
+
+public  sealed record SetTarget(
+    long AgentID,
+    long TargetID
+) : CoreCommand;
+
+public  sealed record SetDestination(
+    long AgentID,
+    Vector2 TargetPosition
+) : CoreCommand;

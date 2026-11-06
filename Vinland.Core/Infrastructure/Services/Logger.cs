@@ -12,8 +12,14 @@ public static class Logger
 {
     private const string LOG_FILE_TEMPLATE = "logs/game-.log";
 
-    public static ILogger Configure(bool isDebug)
+    public static ILogger Configure()
     {
+#if DEBUG
+        const bool isDebug = true;
+#else
+        const bool isDebug = false;
+#endif
+        
         var minimumLevel = isDebug ? LogEventLevel.Debug : LogEventLevel.Information;
 
         var logger = new LoggerConfiguration()

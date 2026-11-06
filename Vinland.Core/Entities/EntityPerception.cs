@@ -3,7 +3,7 @@ using Vinland.Core.Infrastructure.Channels;
 
 namespace Vinland.Core.Entities;
 
-public class Perception(ChannelHub channelHub)
+public class EntityPerception(ChannelHub channelHub)
 {
     public void Update(
         Dictionary<long, Entity> entities,

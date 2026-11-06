@@ -10,17 +10,25 @@ public sealed class EntityManager(ChannelHub channelHub)
     private readonly Dictionary<long, Entity> _entities = new(4096);
     private readonly Dictionary<(int, int), List<long>> _entitiesMap = new(4096);
     
-    private readonly Perception _perception = new (channelHub);
-
+    private readonly EntityPerception _entityPerception = new (channelHub);
+    private readonly EntityBrain _entityBrain = new ();
 
     public void Update()
     {
-        _perception.Update(_entities, _entitiesMap);
+        _entityPerception.Update(_entities, _entitiesMap);
+        _entityBrain.Update(_entities);
+        
+        foreach (var entity in _entities.Values)
+        {
+            if(entity.Kind == EntityKind.Player) continue;
+            if (entity.Target != null)
+                Log.Information("Target {target}, State {state}", _entities[(long)entity.Target].Kind, entity.State);
+        }
     }
 
     public void SightUpdate(RayCastResponse response)
     {
-        _perception.HandleResponse(_entities, response);
+        _entityPerception.HandleResponse(_entities, response);
     }
     
     /// <summary>Creates a new entity and automatically assigns a unique identifier.</summary>

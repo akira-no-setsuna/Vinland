@@ -27,7 +27,16 @@ public class GodotConnector(IExternalModules modules, Node2D level) : Core.Conne
             case RayCastRequest rayCast:
                 HandleRayCasts(rayCast);
                 break;
+            case SetTarget setTarget:
+                AgentFollow(setTarget);
+                break;
         }
+    }
+
+    private void AgentFollow(SetTarget setTarget)
+    {
+        var agent = _entities[setTarget.AgentID].GetNodeOrNull<NavigationAgent2D>("NavigationAgent2D");
+        agent.TargetPosition = _entities[setTarget.TargetID].GlobalPosition;
     }
 
     private void SetVelocity(SetVelocity cmd)

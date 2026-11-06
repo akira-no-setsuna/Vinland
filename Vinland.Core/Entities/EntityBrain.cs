@@ -2,49 +2,72 @@ using Vinland.Core.Infrastructure.Channels;
 
 namespace Vinland.Core.Entities;
 
-public class EntityBrain()
+public class EntityBrain(ChannelHub channelHub)
 {
+    private Dictionary<long, Entity> _entities;
     public void Update(Dictionary<long, Entity> entities)
     {
-        SightProcess(entities);
+        _entities = entities;
+        
+        if (entities == null) return;
+        foreach (var entity in _entities.Values)
+        {
+            if (entity == null ||
+                entity.Kind == EntityKind.Player) continue;
+            
+            SightProcess(entity);
+            
+        }
     }
 
-    private void SightProcess(Dictionary<long, Entity> entities)
+    private void SightProcess(Entity origin)
     {
-        if (entities == null) return;
+        if (origin.VisibleEntities == null) return;
 
-        foreach (var origin in entities.Values)
+        long? bestTargetId = null;
+        float bestDistance = float.MaxValue;
+
+        foreach (long targetId in origin.VisibleEntities)
         {
-            if (origin == null) continue;
-            if (origin.Kind == EntityKind.Player) continue;
-            if (origin.VisibleEntities == null) continue;
+            if (!_entities.TryGetValue(targetId, out Entity candidate))
+                continue;
+            if (candidate == null) continue;
+            if (candidate.Kind != EntityKind.Player) continue;
 
-            long? bestTargetId = null;
-            float bestDistance = float.MaxValue;
+            float distance =
+                (origin.Position - candidate.Position).LengthSquared();
 
-            foreach (long targetId in origin.VisibleEntities)
+            if (distance < bestDistance)
             {
-                if (!entities.TryGetValue(targetId, out Entity candidate))
-                    continue;
-                if (candidate == null) continue;
-                if (candidate.Kind != EntityKind.Player) continue;
-
-                float distance =
-                    (origin.Position - candidate.Position).LengthSquared();
-
-                if (distance < bestDistance)
-                {
-                    bestDistance = distance;
-                    bestTargetId = targetId;
-                }
+                bestDistance = distance;
+                bestTargetId = targetId;
             }
+        }
             
-            origin.Target = bestTargetId;
+        origin.Target = bestTargetId;
 
-            if (bestTargetId != null)
-                origin.State = EntityState.Follow;
-            else if (origin.State == EntityState.Follow)
-                origin.State = EntityState.Idle;
+        if (bestTargetId != null)
+            ChangeState(origin, EntityState.Follow);
+        else if (origin.State == EntityState.Follow)
+            ChangeState(origin, EntityState.Idle);
+    }
+
+    private void ChangeState(Entity entity, EntityState state)
+    {
+        entity.State = state;
+        StateProcess(entity);
+    }
+    
+    private void StateProcess(Entity entity)
+    {
+        switch (entity.State)
+        {
+            case EntityState.Idle:
+                return;
+            case EntityState.Follow:
+                if (entity.Target != null)
+                    channelHub.Core.Writer.TryWrite(new SetTarget(entity.ID, (long)entity.Target));
+                break;
         }
     }
 }

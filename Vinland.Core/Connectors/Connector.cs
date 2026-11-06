@@ -48,7 +48,13 @@ public abstract class Connector(IExternalModules modules)
             _simulation.ManualUpdate(tick, delta);
         });
         CommandRead();
+        FixedUpdate(deltaTime);
         PositionsUpdate();
+    }
+
+    protected void FixedUpdate(float deltaTime)
+    {
+        
     }
     
     private void CommandRead()

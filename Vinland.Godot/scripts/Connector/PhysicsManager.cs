@@ -4,120 +4,83 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
+using Serilog;
 using Vinland.Core.Connectors;
 using Vinland.Core.Infrastructure.Channels;
 using Vector2 = System.Numerics.Vector2;
 
 namespace Vinland.Godot.Connector;
 
-public class PhysicsManager(Node2D worldNode)
+public class PhysicsManager(Node2D level, Dictionary<long, CharacterBody2D> entitiesBody)
 {
-    private readonly PhysicsRayQueryParameters2D _query = new (); 
-    
-    private readonly Lock _velocityLock = new();
-    private List<long> _velIds = new ();
-    private List<Vector2> _velocities = new();
-    
-    private readonly ConcurrentQueue<RayCastTask> _rayCastQueue = new();
-    
-    private readonly Lock _snapshotLock = new();
-    private PositionSnapshot _latestSnapshot = new(new List<long>(), new List<Vector2>());
-
-    public void ApplyVelocities(List<long> entityIds, List<Vector2> velocities)
+    public void SetVelocity(SetVelocity cmd)
     {
-        lock (_velocityLock)
+        if (cmd.EntityID.Count != cmd.Velocity.Count)
         {
-            _velIds = entityIds;
-            _velocities = velocities;
+            Log.Warning("IDs count({IDCount}) does doesnt up velocities count({VelocitiesCount})",
+                cmd.EntityID.Count, cmd.Velocity.Count);
+            return;
         }
-    }
 
-    public Task<List<bool>> RayCastAsync(Vector2 from, List<Vector2> to, uint collisionMask = 1)
-    {
-        var tcs = new TaskCompletionSource<List<bool>>();
-        _rayCastQueue.Enqueue(new RayCastTask(from, to, collisionMask, tcs));
-        return tcs.Task;
-    }
-
-    public PositionSnapshot GetPositionSnapshot()
-    {
-        lock (_snapshotLock)
+        for (int i = 0; i < cmd.EntityID.Count; i++)
         {
-            return _latestSnapshot;
+            if (!entitiesBody.TryGetValue(cmd.EntityID[i], out var entityBody)) continue;
+            if (!GodotObject.IsInstanceValid(entityBody)) continue;
+
+            entityBody.Velocity = cmd.Velocity[i].ToGodot();
         }
     }
     
-    public void Update(Dictionary<long, CharacterBody2D> entities)
+    public RayCastResponse HandleRayCasts(RayCastRequest request)
     {
-        ApplyPendingVelocities(entities);
-        ProcessPendingRayCasts();
-        PublishSnapshot(entities);
-    }
+        var spaceState = level.GetWorld2D().DirectSpaceState;
 
-    private void ApplyPendingVelocities(Dictionary<long, CharacterBody2D> entities)
-    {
-        List<long> ids;
-        List<Vector2> vels;
+        var results = new List<RayCastResult>(request.Requests.Count);
 
-        lock (_velocityLock)
+        foreach (var rc in request.Requests)
         {
-            ids = _velIds;
-            vels = _velocities;
-            
-            _velIds = null;
-            _velocities = null;
-        }
+            if (!entitiesBody.TryGetValue(rc.Origin, out var originBody) ||
+                !GodotObject.IsInstanceValid(originBody))
+                continue;
 
-        if (ids is null || vels is null) return;
-        
-        for (int i = 0; i < ids.Count; i++)
-        {
-            if (!entities.TryGetValue(ids[i], out var entity)) continue;
-            if (!GodotObject.IsInstanceValid(entity)) continue;
-            
-            entity.Velocity = vels[i].ToGodot();
-            entity.MoveAndSlide();
-        }
-    }
+            var from = originBody.GlobalPosition;
+            var visible = new List<long>(rc.Targets.Count);
 
-    private void ProcessPendingRayCasts()
-    {
-        var space = worldNode.GetWorld2D().DirectSpaceState;
-
-        while (_rayCastQueue.TryDequeue(out var item))
-        {
-            var results = new List<bool>();
-            
-            _query.From = item.From.ToGodot();
-            _query.CollisionMask = item.CollisionMask;
-
-            for (int i = 0; i < item.To.Count; i++)
+            foreach (var targetId in rc.Targets)
             {
-                _query.To = item.To[i].ToGodot(); 
-                results.Add(space.IntersectRay(_query).Count > 0); 
+                if (!entitiesBody.TryGetValue(targetId, out var targetBody) ||
+                    !GodotObject.IsInstanceValid(targetBody))
+                    continue;
+
+                var to = targetBody.GlobalPosition;
+                    
+                if (from.DistanceSquaredTo(to) < 1f)
+                {
+                    visible.Add(targetId);
+                    continue;
+                }
+
+                var query = PhysicsRayQueryParameters2D.Create(from, to);
+                
+                query.Exclude = [originBody.GetRid()];
+                query.CollideWithAreas  = false;
+                query.CollideWithBodies = true;
+
+                var hit = spaceState.IntersectRay(query);
+
+                if (hit.Count == 0)
+                {
+                    visible.Add(targetId);
+                }
+                else if (hit["rid"].AsRid() == targetBody.GetRid())
+                {
+                    visible.Add(targetId);
+                }
             }
-        
-            item.Completion.SetResult(results);
+
+            results.Add(new RayCastResult(rc.Origin, visible));
         }
+
+        return new RayCastResponse(results);
     }
-
-    private void PublishSnapshot(Dictionary<long, CharacterBody2D> entities)
-    {
-        var ids = new List<long>();
-        var pos = new List<Vector2>();
-
-        foreach (var entity in entities)
-        {
-            ids.Add(entity.Key);
-            pos.Add(entity.Value.Position.ToNet());
-        }
-        
-        var newSnapshot = new PositionSnapshot(ids, pos);
-        lock (_snapshotLock)
-        {
-            _latestSnapshot = newSnapshot;
-        }
-    }
-
-    private record RayCastTask(Vector2 From, List<Vector2> To, uint CollisionMask, TaskCompletionSource<List<bool>> Completion);
 }

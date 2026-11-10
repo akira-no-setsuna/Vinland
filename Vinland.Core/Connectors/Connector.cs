@@ -51,11 +51,6 @@ public abstract class Connector(IExternalModules modules)
         FixedUpdate(deltaTime);
         PositionsUpdate();
     }
-
-    protected void FixedUpdate(float deltaTime)
-    {
-        
-    }
     
     private void CommandRead()
     {
@@ -67,7 +62,8 @@ public abstract class Connector(IExternalModules modules)
     {
         ChannelHub.Host.Writer.TryWrite(PositionSnapshot());
     }
-    
+
+    protected abstract void FixedUpdate(float deltaTime);
     protected abstract void OnCommand(CoreCommand cmd);
     protected abstract PositionSnapshot PositionSnapshot();
 }

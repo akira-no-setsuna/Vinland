@@ -10,10 +10,6 @@ using Vector2GD = Godot.Vector2;
 
 namespace Vinland.Godot.Connector;
 
-public class GodotConnector(IExternalModules modules, Node2D level) : Core.Connectors.Connector(modules)
-{
-    private System.Collections.Generic.Dictionary<long, CharacterBody2D> _entities = new();
-    private readonly System.Collections.Generic.Dictionary<string, PackedScene> _sceneCache = new();
 public class GodotConnector : Core.Connectors.Connector
 {
     private readonly Node2D _level;
@@ -36,6 +32,22 @@ public class GodotConnector : Core.Connectors.Connector
     }
 
     protected override void FixedUpdate(float deltaTime)
+    {
+        foreach (var entry in _entitiesBody)
+        {
+            var body = entry.Value;
+            var agent = body.GetNodeOrNull<NavigationAgent2D>("NavigationAgent2D");
+
+            if (agent != null && !agent.IsNavigationFinished())
+            {
+                Vector2GD nextPathPosition = agent.GetNextPathPosition();
+                Vector2GD direction = (nextPathPosition - body.GlobalPosition).Normalized();
+                
+                body.Velocity = direction * 16.0f; 
+            }
+
+            body.MoveAndSlide();
+        }
     }
 
     protected override void OnCommand(CoreCommand cmd)
@@ -59,28 +71,14 @@ public class GodotConnector : Core.Connectors.Connector
 
     private void AgentFollow(SetTarget setTarget)
     {
-        var agent = _entities[setTarget.AgentID].GetNodeOrNull<NavigationAgent2D>("NavigationAgent2D");
-        agent.TargetPosition = _entities[setTarget.TargetID].GlobalPosition;
+        if (!_entitiesBody.TryGetValue(setTarget.AgentID, out var body)) return;
+    
+        var agent = body.GetNodeOrNull<NavigationAgent2D>("NavigationAgent2D");
+        if (agent == null) return;
+
+        agent.TargetPosition = _entitiesBody[setTarget.TargetID].GlobalPosition;
     }
-
-    private void SetVelocity(SetVelocity cmd)
-    {
-        if (cmd.EntityID.Count != cmd.Velocity.Count)
-        {
-            Log.Warning("IDs count({IDCount}) does doesnt up velocities count({VelocitiesCount})",
-                cmd.EntityID.Count, cmd.Velocity.Count);
-            return;
-        }
-
-        for (int i = 0; i < cmd.EntityID.Count; i++)
-        {
-            if (!_entities.TryGetValue(cmd.EntityID[i], out var entityBody)) continue;
-            if (!GodotObject.IsInstanceValid(entityBody)) continue;
-
-            entityBody.Velocity = cmd.Velocity[i].ToGodot();
-            entityBody.MoveAndSlide();
-        }
-    }
+    
 
     private void Spawn(SpawnCommand cmd)
     {

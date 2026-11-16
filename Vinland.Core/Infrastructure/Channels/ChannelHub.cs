@@ -27,7 +27,7 @@ public class ChannelHub
         {
             FullMode = BoundedChannelFullMode.DropOldest
         });
-    
+
     public Channel<CoreCommand> Core { get; } = Channel.CreateBounded<CoreCommand>(
         new BoundedChannelOptions(512)
         {

@@ -5,7 +5,6 @@ using Vinland.Core.Connectors.Input;
 using Vinland.Core.Entities;
 using Vinland.Core.Infrastructure.Channels;
 using Vinland.Core.Infrastructure.Services;
-using Vinland.Core.Infrastructure.Services.Threads;
 
 namespace Vinland.Core.Infrastructure.Bootstrap;
 
@@ -19,21 +18,13 @@ public static class Bootstrapper
 
         services.AddSingleton(sp => new Simulation(
             sp.GetRequiredService<ChannelHub>(),
-                sp.GetRequiredService<EntityManager>()
-            ));
+            sp.GetRequiredService<EntityManager>()
+        ));
         services.AddSingleton<EntityManager>();
-        
-        services.AddSingleton<Clock>();
-        
-        return services;
-    }
 
-    private static class RuntimeContract
-    {
-        public static readonly Type[] Required =
-        [
-            typeof(InputSource),
-        ];
+        services.AddSingleton<Clock>();
+
+        return services;
     }
 
     public static IServiceProvider ConfigureServices(IExternalModules modules)
@@ -46,13 +37,21 @@ public static class Bootstrapper
         var missing = RuntimeContract.Required.Where(t => !registered.Contains(t)).ToArray();
 
         if (missing.Length > 0)
-            Log.Error("Host не зарегистрировал обязательные сервисы: {@MissingServices}", 
+            Log.Error("Host не зарегистрировал обязательные сервисы: {@MissingServices}",
                 missing.Select(t => t.Name));
 
         return services.BuildServiceProvider(new ServiceProviderOptions
         {
             ValidateOnBuild = true,
-            ValidateScopes = true,
+            ValidateScopes = true
         });
+    }
+
+    private static class RuntimeContract
+    {
+        public static readonly Type[] Required =
+        [
+            typeof(InputSource)
+        ];
     }
 }

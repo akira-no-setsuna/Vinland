@@ -1,17 +1,18 @@
-using Serilog;
+using Vinland.Core.Connectors.Input;
 using Vinland.Core.Infrastructure.Channels;
 
 namespace Vinland.Core.Entities;
 
-public class PlayerController(ChannelHub channelHub)
+public class PlayerController(ChannelHub channelHub, long playerID)
 {
-    public void Update(long playerID, float speed)
-    {
-        channelHub.InputSnapshots.Reader.TryRead(out var input);
+    private InputSnapshot _last;
 
-        var velocity = input.MoveDirection * speed;
-        var command = new SetVelocity( playerID, velocity);
-        
+    public void Update(float speed)
+    {
+        if (channelHub.InputSnapshots.Reader.TryRead(out var input))
+            _last = input;
+
+        var command = new SetVelocity(playerID, _last.MoveDirection * speed);
         channelHub.Core.Writer.TryWrite(command);
     }
 }

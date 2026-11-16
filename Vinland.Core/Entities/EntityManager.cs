@@ -5,19 +5,35 @@ namespace Vinland.Core.Entities;
 
 public sealed class EntityManager(ChannelHub channelHub)
 {
-    public long CurrentEntityID { get; private set; } = 1;
-
     private readonly Dictionary<long, Entity> _entities = new(4096);
     private readonly Dictionary<(int, int), List<long>> _entitiesMap = new(4096);
+    
+    private readonly EntityBrain _entityBrain = new(channelHub);
+    private readonly EntityPerception _entityPerception = new(channelHub);
+    public long CurrentEntityID { get; private set; } = 1;
+
+    public void Update()
+    {
+        _entityPerception.Update(_entities, _entitiesMap);
+        _entityBrain.Update(_entities);
+    }
+
+    public void SightUpdate(RayCastResponse response)
+    {
+        _entityPerception.HandleResponse(_entities, response);
+    }
 
     /// <summary>Creates a new entity and automatically assigns a unique identifier.</summary>
     public long Spawn(SpawnCommand cmd)
     {
         var id = CurrentEntityID++;
-        var entity = new Entity { 
+        var entity = new Entity
+        {
             ID = id,
             Position = cmd.Position,
             Kind = cmd.Kind,
+
+            VisionRange = 10f
         };
 
         if (!_entities.TryAdd(entity.ID, entity))
@@ -25,9 +41,10 @@ public sealed class EntityManager(ChannelHub channelHub)
             Log.Error("ID collision {ID} on spawn", entity.ID);
             return -1;
         }
+
         AddToCell(entity.Position.GetCell(), entity.ID);
         channelHub.Core.Writer.TryWrite(cmd with { EntityID = entity.ID });
-        
+
         Log.Information("Spawn entity {entity}", entity.ID);
         return entity.ID;
     }
@@ -40,28 +57,46 @@ public sealed class EntityManager(ChannelHub channelHub)
             Log.Warning("Duplicate entity {ID} on restore, skipped", entity.ID);
             return -1;
         }
+
         AddToCell(entity.Position.GetCell(), entity.ID);
         if (entity.ID >= CurrentEntityID)
             CurrentEntityID = entity.ID + 1;
 
         channelHub.Core.Writer.TryWrite(new SpawnCommand(entity.ID, entity.Kind, entity.Position));
-        
+
         Log.Information("Restore entity {entity}", entity.ID);
         return entity.ID;
     }
 
-    public void UpdatePositions(long id, Vector2 position)
+
+    public void UpdatePositions(PositionSnapshot snapshot)
+    {
+        if (snapshot.Entities.Count != snapshot.Positions.Count)
+        {
+            Log.Error("Snapshot mismatch: {Ids} ids, {Pos} positions",
+                snapshot.Entities.Count, snapshot.Positions.Count);
+            return;
+        }
+
+        for (var i = 0; i < snapshot.Entities.Count; i++) UpdatePosition(snapshot.Entities[i], snapshot.Positions[i]);
+    }
+
+    private void UpdatePosition(long id, Vector2 position)
     {
         if (!_entities.TryGetValue(id, out var entity))
         {
             Log.Warning("Entity {ID} not found, cannot set position", id);
             return;
         }
-            
+
         var oldCell = entity.Position.GetCell();
         var newCell = position.GetCell();
 
-        if (oldCell == newCell) { entity.Position = position; return; }
+        if (oldCell == newCell)
+        {
+            entity.Position = position;
+            return;
+        }
 
         RemoveFromCell(oldCell, id);
         AddToCell(newCell, id);
@@ -72,7 +107,7 @@ public sealed class EntityManager(ChannelHub channelHub)
     {
         if (!_entities.Remove(id, out var entity)) return;
         RemoveFromCell(entity.Position.GetCell(), id);
-        
+
         Log.Information("Despawn entity {entity}", entity.ID);
     }
 
@@ -83,6 +118,7 @@ public sealed class EntityManager(ChannelHub channelHub)
             list = new List<long>(4);
             _entitiesMap[cell] = list;
         }
+
         list.Add(id);
     }
 
@@ -90,14 +126,12 @@ public sealed class EntityManager(ChannelHub channelHub)
     {
         if (!_entitiesMap.TryGetValue(cell, out var list)) return;
 
-        int idx = list.IndexOf(id);
+        var idx = list.IndexOf(id);
         if (idx < 0) return;
-        
+
         list[idx] = list[^1];
         list.RemoveAt(list.Count - 1);
 
         if (list.Count == 0) _entitiesMap.Remove(cell);
     }
 }
-
-    

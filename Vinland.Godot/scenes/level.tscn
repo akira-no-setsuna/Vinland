@@ -9,7 +9,7 @@ polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Arr
 outlines = Array[PackedVector2Array]([PackedVector2Array(-29, -152, -149, 236, 205, 289, 551, 261, 607, 128, 575, -140)])
 parsed_geometry_type = 1
 
-[node name="Level" type="Node" unique_id=1929549183]
+[node name="Level" type="Node2D" unique_id=1103902496]
 script = ExtResource("1_w7c3h")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=596120497]

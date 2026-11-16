@@ -9,26 +9,32 @@ namespace Vinland.Core;
 
 public class Simulation(ChannelHub channelHub, EntityManager entityManager) : BaseThread
 {
+    public override string ThreadName { get; } = "Simulation";
+    
     // Entities
-    private readonly PlayerController _playerController = new(channelHub);
-    private readonly Queue<SpawnCommand> _spawnCommands = new();
+    private PlayerController _playerController;
 
     // Player
     private long _playerID;
-    private float _speed = 1.4f;
+    private readonly float _speed = 1.4f;
+
+    private readonly Queue<SpawnCommand> _spawnCommands = new();
 
 
     protected override void Prepare()
     {
-        _playerID = entityManager.Spawn(new SpawnCommand(null ,EntityKind.Player, Vector2.Zero));
-        entityManager.Spawn(new SpawnCommand(null ,EntityKind.Enemy, Vector2.Zero));
+        _playerID = entityManager.Spawn(new SpawnCommand(null, EntityKind.Player, Vector2.Zero));
+        entityManager.Spawn(new SpawnCommand(null, EntityKind.Enemy, Vector2.One));
+        _playerController = new PlayerController(channelHub, _playerID);
     }
 
-    protected override void Update(long tick, float deltaTime)
+    protected override void Update(float deltaTime)
     {
         HostReader();
         EntitiesSpawn();
-        _playerController.Update(_playerID, _speed);
+
+        _playerController.Update(_speed);
+        entityManager.Update();
     }
 
     private void HostReader()
@@ -37,35 +43,19 @@ public class Simulation(ChannelHub channelHub, EntityManager entityManager) : Ba
             switch (mainCommand)
             {
                 case PositionSnapshot snapshot:
-                    UpdatePositions(snapshot);
+                    entityManager.UpdatePositions(snapshot);
+                    break;
+                case RayCastResponse response:
+                    entityManager.SightUpdate(response);
                     break;
                 default:
                     Log.Warning("Main command {cmd} not complied", mainCommand);
                     break;
             }
     }
-    
+
     private void EntitiesSpawn()
     {
-        while (_spawnCommands.TryDequeue(out var command))
-        {
-            entityManager.Spawn(command);
-        }
-    }
-
-    // Update logic entities positions
-    private void UpdatePositions(PositionSnapshot snapshot)
-    {
-        if (snapshot.Entities.Count != snapshot.Positions.Count)
-        {
-            Log.Error("Snapshot mismatch: {Ids} ids, {Pos} positions",
-                snapshot.Entities.Count, snapshot.Positions.Count);
-            return;
-        }
-        
-        for (int i = 0; i < snapshot.Entities.Count; i++)
-        {
-            entityManager.UpdatePositions(snapshot.Entities[i], snapshot.Positions[i]);
-        }
+        while (_spawnCommands.TryDequeue(out var command)) entityManager.Spawn(command);
     }
 }

@@ -6,10 +6,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BidirectionalDictionary" Version="3.1.5" />
+        <PackageReference Include="BidirectionalDictionary" Version="3.1.5"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9"/>
         <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.8"/>
-        
+
         <PackageReference Include="Serilog" Version="4.3.1"/>
         <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0"/>
         <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0"/>

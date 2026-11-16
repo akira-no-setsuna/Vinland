@@ -5,7 +5,7 @@ namespace Vinland.Core.Infrastructure.Services.Threads;
 public abstract class BaseThread
 {
     private bool _isInitialized;
-    public long CurrentTick { get; private set; }
+    public abstract string ThreadName { get; }
 
     public void Start()
     {
@@ -13,21 +13,20 @@ public abstract class BaseThread
         _isInitialized = true;
     }
 
-    public void ManualUpdate(long tick, float deltaTime)
+    public void ManualUpdate(float deltaTime)
     {
         if (!_isInitialized)
         {
-            Log.Warning("This thread is not initialized");
+            Log.Warning("{Name} thread is not initialized", ThreadName);
             return;
         }
 
-        CurrentTick = tick;
-        Update(tick, deltaTime);
+        Update(deltaTime);
     }
 
     protected virtual void Prepare()
     {
     }
 
-    protected abstract void Update(long tick, float deltaTime);
+    protected abstract void Update(float deltaTime);
 }

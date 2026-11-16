@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Vinland.Core.Connectors.Input;
-using Vinland.Core.Infrastructure;
 using Vinland.Core.Infrastructure.Bootstrap;
 using Vinland.Godot.input;
 

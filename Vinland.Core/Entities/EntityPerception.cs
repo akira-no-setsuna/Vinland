@@ -1,4 +1,3 @@
-using Serilog;
 using Vinland.Core.Infrastructure.Channels;
 
 namespace Vinland.Core.Entities;
@@ -46,10 +45,10 @@ public class EntityPerception(ChannelHub channelHub)
         Dictionary<long, Entity> entities,
         Dictionary<(int, int), List<long>> entitiesMap)
     {
-        float r  = self.VisionRange;
-        float r2 = r * r;
-        var pos  = self.Position;
-        long selfId = self.ID;
+        var r = self.VisionRange;
+        var r2 = r * r;
+        var pos = self.Position;
+        var selfId = self.ID;
 
         var candidates = new List<long>();
 

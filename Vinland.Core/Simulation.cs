@@ -9,21 +9,22 @@ namespace Vinland.Core;
 
 public class Simulation(ChannelHub channelHub, EntityManager entityManager) : BaseThread
 {
+    public override string ThreadName { get; } = "Simulation";
+    
     // Entities
     private PlayerController _playerController;
-    private readonly Queue<SpawnCommand> _spawnCommands = new();
 
     // Player
     private long _playerID;
-    private float _speed = 1.4f;
+    private readonly float _speed = 1.4f;
 
+    private readonly Queue<SpawnCommand> _spawnCommands = new();
 
-    public override string ThreadName { get; } = "Simulation";
 
     protected override void Prepare()
     {
-        _playerID = entityManager.Spawn(new SpawnCommand(null ,EntityKind.Player, Vector2.Zero));
-        entityManager.Spawn(new SpawnCommand(null ,EntityKind.Enemy, Vector2.One));
+        _playerID = entityManager.Spawn(new SpawnCommand(null, EntityKind.Player, Vector2.Zero));
+        entityManager.Spawn(new SpawnCommand(null, EntityKind.Enemy, Vector2.One));
         _playerController = new PlayerController(channelHub, _playerID);
     }
 
@@ -31,7 +32,7 @@ public class Simulation(ChannelHub channelHub, EntityManager entityManager) : Ba
     {
         HostReader();
         EntitiesSpawn();
-        
+
         _playerController.Update(_speed);
         entityManager.Update();
     }
@@ -52,12 +53,9 @@ public class Simulation(ChannelHub channelHub, EntityManager entityManager) : Ba
                     break;
             }
     }
-    
+
     private void EntitiesSpawn()
     {
-        while (_spawnCommands.TryDequeue(out var command))
-        {
-            entityManager.Spawn(command);
-        }
+        while (_spawnCommands.TryDequeue(out var command)) entityManager.Spawn(command);
     }
 }

@@ -1,34 +1,29 @@
-using System;
 using System.Collections.Generic;
 using Godot;
-using Godot.Collections;
 using Serilog;
 using Vinland.Core.Infrastructure.Bootstrap;
 using Vinland.Core.Infrastructure.Channels;
 using Vector2 = System.Numerics.Vector2;
-using Vector2GD = Godot.Vector2;
 
 namespace Vinland.Godot.Connector;
 
 public class GodotConnector : Core.Connectors.Connector
 {
+    private readonly Dictionary<long, CharacterBody2D> _entitiesBody;
     private readonly Node2D _level;
-    
-    private readonly System.Collections.Generic.Dictionary<long, CharacterBody2D> _entitiesBody;
-    private readonly System.Collections.Generic.Dictionary<string, PackedScene> _sceneCache;
-    
+
     private readonly PhysicsManager _physicsManager;
+    private readonly Dictionary<string, PackedScene> _sceneCache;
 
 
     public GodotConnector(IExternalModules modules, Node2D level) : base(modules)
     {
         _level = level;
-        
-        _entitiesBody = new();
-        _sceneCache = new();
-        
-        _physicsManager = new (_level, _entitiesBody);
-        
+
+        _entitiesBody = new Dictionary<long, CharacterBody2D>();
+        _sceneCache = new Dictionary<string, PackedScene>();
+
+        _physicsManager = new PhysicsManager(_level, _entitiesBody);
     }
 
     protected override void FixedUpdate(float deltaTime)
@@ -40,10 +35,10 @@ public class GodotConnector : Core.Connectors.Connector
 
             if (agent != null && !agent.IsNavigationFinished())
             {
-                Vector2GD nextPathPosition = agent.GetNextPathPosition();
-                Vector2GD direction = (nextPathPosition - body.GlobalPosition).Normalized();
-                
-                body.Velocity = direction * 16.0f; 
+                var nextPathPosition = agent.GetNextPathPosition();
+                var direction = (nextPathPosition - body.GlobalPosition).Normalized();
+
+                body.Velocity = direction * 16.0f;
             }
 
             body.MoveAndSlide();
@@ -72,13 +67,13 @@ public class GodotConnector : Core.Connectors.Connector
     private void AgentFollow(SetTarget setTarget)
     {
         if (!_entitiesBody.TryGetValue(setTarget.AgentID, out var body)) return;
-    
+
         var agent = body.GetNodeOrNull<NavigationAgent2D>("NavigationAgent2D");
         if (agent == null) return;
 
         agent.TargetPosition = _entitiesBody[setTarget.TargetID].GlobalPosition;
     }
-    
+
 
     private void Spawn(SpawnCommand cmd)
     {
@@ -96,9 +91,10 @@ public class GodotConnector : Core.Connectors.Connector
             scene = GD.Load<PackedScene>(path);
             _sceneCache[kind] = scene;
         }
+
         var instance = scene.Instantiate<CharacterBody2D>();
         instance.Position = cmd.Position.ToGodot();
-        
+
         _level.AddChild(instance);
         _entitiesBody.Add((long)cmd.EntityID, instance);
     }

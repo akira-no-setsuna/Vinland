@@ -4,9 +4,8 @@ namespace Vinland.Core.Infrastructure.Services.Threads;
 
 public abstract class BaseThread
 {
-    public abstract string ThreadName { get; }
-    
     private bool _isInitialized;
+    public abstract string ThreadName { get; }
 
     public void Start()
     {
@@ -21,7 +20,7 @@ public abstract class BaseThread
             Log.Warning("{Name} thread is not initialized", ThreadName);
             return;
         }
-        
+
         Update(deltaTime);
     }
 

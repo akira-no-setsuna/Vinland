@@ -3,6 +3,7 @@ using Vinland.Core.Entities;
 namespace Vinland.Core.Infrastructure.Channels;
 
 public abstract record CoreCommand;
+
 public sealed record SpawnCommand(
     long? EntityID,
     EntityKind Kind,
@@ -23,12 +24,12 @@ public sealed record RayCastRequest(
     List<RayCast> Requests
 ) : CoreCommand;
 
-public  sealed record SetTarget(
+public sealed record SetTarget(
     long AgentID,
     long TargetID
 ) : CoreCommand;
 
-public  sealed record SetDestination(
+public sealed record SetDestination(
     long AgentID,
     Vector2 TargetPosition
 ) : CoreCommand;

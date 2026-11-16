@@ -1,20 +1,14 @@
-
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Godot;
 using Serilog;
-using Vinland.Core.Connectors;
 using Vinland.Core.Infrastructure.Channels;
-using Vector2 = System.Numerics.Vector2;
 
 namespace Vinland.Godot.Connector;
 
 public class PhysicsManager(Node2D level, Dictionary<long, CharacterBody2D> entitiesBody)
 {
     private const float MIN_RAYCAST_DISTANCE_SQ = 0.001f;
-    
+
     public void SetVelocity(SetVelocity cmd)
     {
         if (!entitiesBody.TryGetValue(cmd.EntityID, out var entityBody))
@@ -32,17 +26,19 @@ public class PhysicsManager(Node2D level, Dictionary<long, CharacterBody2D> enti
                 nameof(SetVelocity), cmd.EntityID);
             return;
         }
+
         entityBody.Velocity = cmd.Velocity.ToGodot();
     }
+
     public RayCastResponse HandleRayCasts(RayCastRequest request)
     {
         var spaceState = level.GetWorld2D().DirectSpaceState;
         var results = new List<RayCastResult>(request.Requests.Count);
 
-        var skippedOrigins  = 0;
-        var skippedTargets  = 0;
-        var degenerateRays  = 0;
-        var raysCast        = 0;
+        var skippedOrigins = 0;
+        var skippedTargets = 0;
+        var degenerateRays = 0;
+        var raysCast = 0;
 
         foreach (var rc in request.Requests)
         {
@@ -95,10 +91,10 @@ public class PhysicsManager(Node2D level, Dictionary<long, CharacterBody2D> enti
                 }
 
                 var query = PhysicsRayQueryParameters2D.Create(from, to);
-                query.Exclude           = [originBody.GetRid()];
-                query.CollideWithAreas  = false;
+                query.Exclude = [originBody.GetRid()];
+                query.CollideWithAreas = false;
                 query.CollideWithBodies = true;
-                
+
                 raysCast++;
                 var hit = spaceState.IntersectRay(query);
 
@@ -108,15 +104,13 @@ public class PhysicsManager(Node2D level, Dictionary<long, CharacterBody2D> enti
 
             results.Add(new RayCastResult(rc.Origin, visible));
         }
-        
+
         if (skippedOrigins > 0 || skippedTargets > 0 || degenerateRays > 0)
-        {
             Log.Debug(
                 "RayCast batch: {RaysCast} rays, {Requests} requests, " +
                 "{SkippedOrigins} origins skipped, {SkippedTargets} targets skipped, " +
                 "{Degenerate} degenerate (too close)",
                 raysCast, request.Requests.Count, skippedOrigins, skippedTargets, degenerateRays);
-        }
 
         return new RayCastResponse(results);
     }

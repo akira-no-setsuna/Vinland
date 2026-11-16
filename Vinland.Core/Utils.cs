@@ -22,37 +22,45 @@ public struct CircleCells
         _cx = center.X;
         _cy = center.Y;
         _r2 = radius * radius;
-        
-        _y    = (int)MathF.Floor(_cy - radius) - 1;
+
+        _y = (int)MathF.Floor(_cy - radius) - 1;
         _maxY = (int)MathF.Floor(_cy + radius);
-        _x    = 0;
+        _x = 0;
         _endX = -1;
     }
 
-    public CircleCells GetEnumerator() => this;
+    public CircleCells GetEnumerator()
+    {
+        return this;
+    }
+
     public (int X, int Y) Current => (_x, _y);
 
     public bool MoveNext()
     {
-        if (_x < _endX) { _x++; return true; }
+        if (_x < _endX)
+        {
+            _x++;
+            return true;
+        }
 
         while (_y < _maxY)
         {
             _y++;
-            float dy = _cy < _y ? _y - _cy : (_cy > _y + 1 ? _cy - (_y + 1) : 0f);
-            float rem = _r2 - dy * dy;
+            var dy = _cy < _y ? _y - _cy : _cy > _y + 1 ? _cy - (_y + 1) : 0f;
+            var rem = _r2 - dy * dy;
             if (rem < 0f) continue;
 
-            float hw = MathF.Sqrt(rem);
-            int sx = (int)MathF.Ceiling(_cx - hw) - 1;
-            int ex = (int)MathF.Floor(_cx + hw);
+            var hw = MathF.Sqrt(rem);
+            var sx = (int)MathF.Ceiling(_cx - hw) - 1;
+            var ex = (int)MathF.Floor(_cx + hw);
             if (sx > ex) continue;
 
             _x = sx;
             _endX = ex;
             return true;
         }
+
         return false;
     }
 }
-

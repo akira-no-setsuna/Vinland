@@ -1,6 +1,4 @@
-using System;
 using System.Globalization;
-using System.Threading;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -19,7 +17,7 @@ public static class Logger
 #else
         const bool isDebug = false;
 #endif
-        
+
         var minimumLevel = isDebug ? LogEventLevel.Debug : LogEventLevel.Information;
 
         var logger = new LoggerConfiguration()

@@ -1,5 +1,3 @@
-using Vinland.Core.Entities;
-
 namespace Vinland.Core.Infrastructure.Channels;
 
 public abstract record HostCommand;
@@ -17,4 +15,3 @@ public sealed record RayCastResult(
 public sealed record RayCastResponse(
     List<RayCastResult> Results
 ) : HostCommand;
-

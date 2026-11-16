@@ -5,19 +5,46 @@ using Vinland.Core.Infrastructure.Services.Threads;
 public class ThreadManager : IDisposable
 {
     private readonly CancellationTokenSource _cts = new();
-    private readonly List<Task> _runningTasks = new();
     private readonly object _gate = new();
+    private readonly List<Task> _runningTasks = new();
+    private bool _disposed;
 
     private bool _started;
     private bool _stopRequested;
-    private bool _disposed;
+
+    public void Dispose()
+    {
+        Task[] snapshot;
+        CancellationTokenSource cts;
+
+        lock (_gate)
+        {
+            if (_disposed) return;
+
+            _disposed = true;
+            _cts.Cancel();
+            snapshot = _runningTasks.ToArray();
+            cts = _cts;
+        }
+
+        try
+        {
+            WaitAllSafe(snapshot);
+        }
+        finally
+        {
+            cts.Dispose();
+        }
+
+        GC.SuppressFinalize(this);
+    }
 
     public void Start(List<BaseThread> threads)
     {
         lock (_gate)
         {
             if (_disposed) throw new ObjectDisposedException(nameof(ThreadManager));
-            if (_started)  throw new InvalidOperationException("Already started");
+            if (_started) throw new InvalidOperationException("Already started");
 
             _started = true;
 
@@ -52,33 +79,6 @@ public class ThreadManager : IDisposable
         Log.Debug("Threads stopped.");
     }
 
-    public void Dispose()
-    {
-        Task[] snapshot;
-        CancellationTokenSource cts;
-
-        lock (_gate)
-        {
-            if (_disposed) return;
-
-            _disposed = true;
-            _cts.Cancel();
-            snapshot = _runningTasks.ToArray();
-            cts = _cts;
-        }
-
-        try
-        {
-            WaitAllSafe(snapshot);
-        }
-        finally
-        {
-            cts.Dispose();
-        }
-
-        GC.SuppressFinalize(this);
-    }
-
     private static void WaitAllSafe(Task[] tasks)
     {
         if (tasks.Length == 0) return;
@@ -98,34 +98,34 @@ public class ThreadManager : IDisposable
     {
         var token = _cts.Token;
         var stopwatch = Stopwatch.StartNew();
-        double lastFrameTime = stopwatch.Elapsed.TotalSeconds;
+        var lastFrameTime = stopwatch.Elapsed.TotalSeconds;
 
         const double maxFrameTime = 1.0 / 240.0;
-        const double maxDelta     = 0.1;
+        const double maxDelta = 0.1;
 
         try
         {
-            Thread.CurrentThread.Name         = thread.ThreadName;
-            Thread.CurrentThread.Priority     = ThreadPriority.AboveNormal;
+            Thread.CurrentThread.Name = thread.ThreadName;
+            Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
             Thread.CurrentThread.IsBackground = true;
-            
+
             thread.Start();
-            
+
             while (!token.IsCancellationRequested)
             {
-                double frameStart = stopwatch.Elapsed.TotalSeconds;
-                double deltaTime  = frameStart - lastFrameTime;
-                lastFrameTime     = frameStart;
+                var frameStart = stopwatch.Elapsed.TotalSeconds;
+                var deltaTime = frameStart - lastFrameTime;
+                lastFrameTime = frameStart;
 
                 if (deltaTime > maxDelta) deltaTime = maxDelta;
-                if (deltaTime > 0.0)      thread.ManualUpdate((float)deltaTime);
+                if (deltaTime > 0.0) thread.ManualUpdate((float)deltaTime);
 
-                double targetTime = frameStart + maxFrameTime;
-                double now        = stopwatch.Elapsed.TotalSeconds;
+                var targetTime = frameStart + maxFrameTime;
+                var now = stopwatch.Elapsed.TotalSeconds;
 
                 if (now < targetTime)
                 {
-                    double toSleep = targetTime - now;
+                    var toSleep = targetTime - now;
                     if (toSleep > 0.002)
                         Thread.Sleep(TimeSpan.FromSeconds(toSleep - 0.001));
 
@@ -134,7 +134,10 @@ public class ThreadManager : IDisposable
                 }
             }
         }
-        catch (OperationCanceledException) { /* нормальная отмена */ }
+        catch (OperationCanceledException)
+        {
+            /* нормальная отмена */
+        }
         catch (Exception ex)
         {
             Log.Error(ex, "{Name} thread crashed.", thread.ThreadName);

@@ -7,7 +7,6 @@ namespace Vinland.Godot.input;
 
 public class GodotInputSource(ChannelHub channelHub) : InputSource(channelHub)
 {
-
     protected override void ReadSnapshot()
     {
         InputSnapshot = InputSnapshot with

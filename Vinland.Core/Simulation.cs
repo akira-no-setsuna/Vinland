@@ -25,6 +25,7 @@ public class Simulation(ChannelHub channelHub, EntityManager entityManager) : Ba
         _playerID = entityManager.Spawn(new SpawnCommand(null ,EntityKind.Player, Vector2.Zero));
         entityManager.Spawn(new SpawnCommand(null ,EntityKind.Enemy, Vector2.Zero));
         _playerController = new PlayerController(channelHub, [_playerID]);
+        _playerController = new PlayerController(channelHub, _playerID);
     }
 
     protected override void Update(float deltaTime)

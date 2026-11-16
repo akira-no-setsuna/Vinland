@@ -15,20 +15,22 @@ public class PhysicsManager(Node2D level, Dictionary<long, CharacterBody2D> enti
 {
     public void SetVelocity(SetVelocity cmd)
     {
-        if (cmd.EntityID.Count != cmd.Velocity.Count)
+        if (!entitiesBody.TryGetValue(cmd.EntityID, out var entityBody))
         {
-            Log.Warning("IDs count({IDCount}) does doesnt up velocities count({VelocitiesCount})",
-                cmd.EntityID.Count, cmd.Velocity.Count);
+            Log.Debug(
+                "Skipping {Command}: entity {EntityID} not found in body registry ",
+                nameof(SetVelocity), cmd.EntityID);
             return;
         }
 
-        for (int i = 0; i < cmd.EntityID.Count; i++)
+        if (!GodotObject.IsInstanceValid(entityBody))
         {
-            if (!entitiesBody.TryGetValue(cmd.EntityID[i], out var entityBody)) continue;
-            if (!GodotObject.IsInstanceValid(entityBody)) continue;
-
-            entityBody.Velocity = cmd.Velocity[i].ToGodot();
+            Log.Warning(
+                "Skipping {Command}: entity {EntityID} is present in registry but its ",
+                nameof(SetVelocity), cmd.EntityID);
+            return;
         }
+        entityBody.Velocity = cmd.Velocity.ToGodot();
     }
     
     public RayCastResponse HandleRayCasts(RayCastRequest request)

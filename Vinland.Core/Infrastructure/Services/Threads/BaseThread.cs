@@ -18,7 +18,7 @@ public abstract class BaseThread
     {
         if (!_isInitialized)
         {
-            Log.Warning("This thread is not initialized");
+            Log.Warning("{Name} thread is not initialized", ThreadName);
             return;
         }
         

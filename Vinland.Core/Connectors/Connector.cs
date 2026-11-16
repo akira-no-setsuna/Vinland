@@ -11,12 +11,12 @@ namespace Vinland.Core.Connectors;
 public abstract class Connector(IExternalModules modules)
 {
     // DI
-    
     private IServiceProvider _services;
+    
+    private ThreadManager _threadManager;
     
     private Simulation _simulation;
     protected ChannelHub ChannelHub;
-    private ThreadManager _threadManager;
     private InputSource _inputSource;
     private Clock _clock;
     
@@ -27,26 +27,24 @@ public abstract class Connector(IExternalModules modules)
         // DI
         _services = Bootstrapper.ConfigureServices(modules);
     
+        _threadManager = _services.GetRequiredService<ThreadManager>();
+        
+        
         _simulation = _services.GetRequiredService<Simulation>();
         ChannelHub = _services.GetRequiredService<ChannelHub>();
-        _threadManager = _services.GetRequiredService<ThreadManager>();
+        
         _inputSource = _services.GetRequiredService<InputSource>();
         _clock = _services.GetRequiredService<Clock>();
         
         Log.Information("=== Initializing game ===");
         
-        _threadManager.Start();
-        
-        _simulation.Start();
+        _threadManager.Start([_simulation]);
     }
 
     public void Update(float deltaTime)
     {
         _inputSource.Update();
-        _clock.Tick(deltaTime, (tick, delta) =>
-        {
-            _simulation.ManualUpdate(tick, delta);
-        });
+        
         CommandRead();
         FixedUpdate(deltaTime);
         PositionsUpdate();

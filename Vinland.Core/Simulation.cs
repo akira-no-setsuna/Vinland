@@ -18,6 +18,8 @@ public class Simulation(ChannelHub channelHub, EntityManager entityManager) : Ba
     private float _speed = 1.4f;
 
 
+    public override string ThreadName { get; } = "Simulation";
+
     protected override void Prepare()
     {
         _playerID = entityManager.Spawn(new SpawnCommand(null ,EntityKind.Player, Vector2.Zero));
@@ -25,7 +27,7 @@ public class Simulation(ChannelHub channelHub, EntityManager entityManager) : Ba
         _playerController = new PlayerController(channelHub, [_playerID]);
     }
 
-    protected override void Update(long tick, float deltaTime)
+    protected override void Update(float deltaTime)
     {
         HostReader();
         EntitiesSpawn();

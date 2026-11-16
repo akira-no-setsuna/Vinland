@@ -4,7 +4,6 @@ using Vinland.Core.Infrastructure.Services.Threads;
 
 public class ThreadManager : IDisposable
 {
-    private readonly BaseThread[] _threads;
     private readonly CancellationTokenSource _cts = new();
     private readonly List<Task> _runningTasks = new();
     private readonly object _gate = new();
@@ -13,13 +12,7 @@ public class ThreadManager : IDisposable
     private bool _stopRequested;
     private bool _disposed;
 
-    public ThreadManager(List<BaseThread> threads)
-    {
-        ArgumentNullException.ThrowIfNull(threads);
-        _threads = [.. threads];
-    }
-
-    public void Start()
+    public void Start(List<BaseThread> threads)
     {
         lock (_gate)
         {
@@ -28,7 +21,7 @@ public class ThreadManager : IDisposable
 
             _started = true;
 
-            foreach (var thread in _threads)
+            foreach (var thread in threads)
             {
                 var task = Task.Factory.StartNew(
                     () => ThreadLoop(thread),
@@ -115,7 +108,9 @@ public class ThreadManager : IDisposable
             Thread.CurrentThread.Name         = thread.ThreadName;
             Thread.CurrentThread.Priority     = ThreadPriority.AboveNormal;
             Thread.CurrentThread.IsBackground = true;
-
+            
+            thread.Start();
+            
             while (!token.IsCancellationRequested)
             {
                 double frameStart = stopwatch.Elapsed.TotalSeconds;

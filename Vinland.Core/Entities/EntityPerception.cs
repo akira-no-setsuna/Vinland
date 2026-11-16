@@ -32,7 +32,6 @@ public class EntityPerception(ChannelHub channelHub)
         Dictionary<long, Entity> entities,
         RayCastResponse response)
     {
-        Log.Debug($"Perception Response: {response.Results.Count}");
         foreach (var result in response.Results)
         {
             if (!entities.TryGetValue(result.Origin, out var entity)) continue;

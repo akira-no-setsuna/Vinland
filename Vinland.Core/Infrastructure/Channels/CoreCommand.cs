@@ -10,8 +10,8 @@ public sealed record SpawnCommand(
 ) : CoreCommand;
 
 public sealed record SetVelocity(
-    List<long> EntityID,
-    List<Vector2> Velocity
+    long EntityID,
+    Vector2 Velocity
 ) : CoreCommand;
 
 public sealed record RayCast(

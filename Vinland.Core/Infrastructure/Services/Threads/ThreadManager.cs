@@ -1,165 +1,143 @@
-#nullable enable
 using System.Diagnostics;
 using Serilog;
-
-namespace Vinland.Core.Infrastructure.Services.Threads;
+using Vinland.Core.Infrastructure.Services.Threads;
 
 public class ThreadManager : IDisposable
 {
     private readonly CancellationTokenSource _cts = new();
-    private Task? _dataThread;
+    private readonly List<Task> _runningTasks = new();
+    private readonly object _gate = new();
 
+    private bool _started;
+    private bool _stopRequested;
     private bool _disposed;
 
-    private Task? _logicThread;
-    private Task? _physicsThread;
-    private int _started;
-
-    public void Dispose()
+    public void Start(List<BaseThread> threads)
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+        lock (_gate)
+        {
+            if (_disposed) throw new ObjectDisposedException(nameof(ThreadManager));
+            if (_started)  throw new InvalidOperationException("Already started");
 
-    public void Start()
-    {
-        if (Interlocked.Exchange(ref _started, 1) == 1)
-            throw new InvalidOperationException("Already started");
+            _started = true;
 
-        _logicThread = Task.Factory.StartNew(
-            LogicLoop,
-            _cts.Token,
-            TaskCreationOptions.LongRunning,
-            TaskScheduler.Default).Unwrap();
-        _physicsThread = Task.Factory.StartNew(
-            PhysicsLoop,
-            _cts.Token,
-            TaskCreationOptions.LongRunning,
-            TaskScheduler.Default).Unwrap();
-        _dataThread = Task.Run(DataLoop);
+            foreach (var thread in threads)
+            {
+                var task = Task.Factory.StartNew(
+                    () => ThreadLoop(thread),
+                    CancellationToken.None,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default);
+
+                _runningTasks.Add(task);
+            }
+        }
 
         Log.Debug("Threads started.");
     }
 
-    private async Task LogicLoop() // For now, it's just a placeholder
-    {
-        try
-        {
-            Thread.CurrentThread.Name = "LogicThread";
-            Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
-            Thread.CurrentThread.IsBackground = true;
-
-            var token = _cts.Token;
-            while (!token.IsCancellationRequested) await Task.Delay(16, token);
-        }
-        catch (OperationCanceledException)
-        {
-            // If thread Cancel()
-        }
-        catch (Exception ex)
-        {
-            Log.Fatal(ex, "Thread crashed");
-        }
-    }
-
-    private async Task PhysicsLoop() // For now, it's just a placeholder
-    {
-        try
-        {
-            Thread.CurrentThread.Name = "PhysicsThread";
-            Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
-            Thread.CurrentThread.IsBackground = true;
-
-            var token = _cts.Token;
-            while (!token.IsCancellationRequested) await Task.Delay(16, token);
-        }
-        catch (OperationCanceledException)
-        {
-            // If thread Cancel()
-        }
-        catch (Exception ex)
-        {
-            Log.Fatal(ex, "Thread crashed");
-        }
-    }
-
-    private async Task DataLoop() // For now, it's just a placeholder
-    {
-        try
-        {
-            Thread.CurrentThread.Name = "DataThread";
-            Thread.CurrentThread.IsBackground = true;
-
-            var token = _cts.Token;
-            while (!token.IsCancellationRequested) await Task.Delay(16, token);
-        }
-        catch (OperationCanceledException)
-        {
-            // If thread Cancel()
-        }
-        catch (Exception ex)
-        {
-            Log.Fatal(ex, "Thread crashed");
-        }
-    }
-
     public void Stop()
     {
-        _cts.Cancel();
-        Log.Debug("Stop signal sent to threads.");
+        Task[] snapshot;
+        lock (_gate)
+        {
+            if (!_started || _stopRequested || _disposed) return;
+
+            _stopRequested = true;
+            _cts.Cancel();
+            snapshot = _runningTasks.ToArray();
+        }
+
+        WaitAllSafe(snapshot);
+        Log.Debug("Threads stopped.");
     }
 
-    public bool Join(TimeSpan timeout)
+    public void Dispose()
     {
-        if (_logicThread == null) return true;
+        Task[] snapshot;
+        CancellationTokenSource cts;
 
-        var tasks = new[] { _logicThread, _physicsThread, _dataThread }
-            .Where(t => t != null)
-            .Select(t => t!)
-            .ToArray();
+        lock (_gate)
+        {
+            if (_disposed) return;
 
-        if (tasks.Length == 0) return true;
+            _disposed = true;
+            _cts.Cancel();
+            snapshot = _runningTasks.ToArray();
+            cts = _cts;
+        }
 
+        try
+        {
+            WaitAllSafe(snapshot);
+        }
+        finally
+        {
+            cts.Dispose();
+        }
+
+        GC.SuppressFinalize(this);
+    }
+
+    private static void WaitAllSafe(Task[] tasks)
+    {
+        if (tasks.Length == 0) return;
+
+        try
+        {
+            Task.WaitAll(tasks);
+        }
+        catch (AggregateException ex)
+        {
+            foreach (var inner in ex.Flatten().InnerExceptions)
+                Log.Error(inner, "Thread task faulted during shutdown.");
+        }
+    }
+
+    private void ThreadLoop(BaseThread thread)
+    {
+        var token = _cts.Token;
         var stopwatch = Stopwatch.StartNew();
-        const int sleepMs = 5;
+        double lastFrameTime = stopwatch.Elapsed.TotalSeconds;
 
-        while (stopwatch.Elapsed < timeout)
+        const double maxFrameTime = 1.0 / 240.0;
+        const double maxDelta     = 0.1;
+
+        try
         {
-            if (tasks.All(t => t.IsCompleted))
+            Thread.CurrentThread.Name         = thread.ThreadName;
+            Thread.CurrentThread.Priority     = ThreadPriority.AboveNormal;
+            Thread.CurrentThread.IsBackground = true;
+            
+            thread.Start();
+            
+            while (!token.IsCancellationRequested)
             {
-                foreach (var task in tasks)
-                    if (task.IsFaulted)
-                    {
-                        Log.Error(task.Exception, "Background thread faulted unexpectedly.");
-                        return false;
-                    }
+                double frameStart = stopwatch.Elapsed.TotalSeconds;
+                double deltaTime  = frameStart - lastFrameTime;
+                lastFrameTime     = frameStart;
 
-                return true;
+                if (deltaTime > maxDelta) deltaTime = maxDelta;
+                if (deltaTime > 0.0)      thread.ManualUpdate((float)deltaTime);
+
+                double targetTime = frameStart + maxFrameTime;
+                double now        = stopwatch.Elapsed.TotalSeconds;
+
+                if (now < targetTime)
+                {
+                    double toSleep = targetTime - now;
+                    if (toSleep > 0.002)
+                        Thread.Sleep(TimeSpan.FromSeconds(toSleep - 0.001));
+
+                    while (stopwatch.Elapsed.TotalSeconds < targetTime && !token.IsCancellationRequested)
+                        Thread.SpinWait(10);
+                }
             }
-
-            Thread.Sleep(sleepMs);
         }
-
-        return false;
-    }
-
-    public void Dispose(bool disposing)
-    {
-        if (_disposed) return;
-        if (disposing)
+        catch (OperationCanceledException) { /* нормальная отмена */ }
+        catch (Exception ex)
         {
-            Stop();
-
-            if (!Join(TimeSpan.FromMilliseconds(100)))
-                Log.Warning(
-                    "Thread shutdown timeout. Logic alive: {LogicAlive}, Physics alive: {PhysicsAlive}, Data alive: {DataAlive}",
-                    _logicThread is { IsCompleted: false },
-                    _physicsThread is { IsCompleted: false },
-                    _dataThread is { IsCompleted: false });
-            Log.Debug("Threads disposed.");
-            _cts.Dispose();
+            Log.Error(ex, "{Name} thread crashed.", thread.ThreadName);
         }
-
-        _disposed = true;
     }
 }
